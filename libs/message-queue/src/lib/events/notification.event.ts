@@ -12,7 +12,7 @@ export class TransactionNotificationEvent {
     public readonly currency: string,
     public readonly type: 'CREDIT' | 'DEBIT',
     public readonly email: string,
-    public readonly metadata?: Record<string, any>
+    public readonly metadata?: Record<string, unknown>
   ) {}
 }
 
@@ -25,7 +25,7 @@ export class OrderNotificationEvent {
     public readonly fromCurrency: string,
     public readonly toCurrency: string,
     public readonly email: string,
-    public readonly metadata?: Record<string, any>
+    public readonly metadata?: Record<string, unknown>
   ) {}
 }
 
@@ -36,6 +36,6 @@ export class WalletNotificationEvent {
     public readonly currency: string,
     public readonly action: string,
     public readonly email: string,
-    public readonly metadata?: Record<string, any>
+    public readonly metadata?: Record<string, unknown>
   ) {}
 }

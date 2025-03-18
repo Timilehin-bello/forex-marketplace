@@ -26,7 +26,7 @@ export class ExceptionFilter implements NestExceptionFilter {
       message =
         typeof exceptionResponse === 'string'
           ? exceptionResponse
-          : (exceptionResponse as any).message || message;
+          : (exceptionResponse as { message: string }).message || message;
     }
 
     const errorResponse = {

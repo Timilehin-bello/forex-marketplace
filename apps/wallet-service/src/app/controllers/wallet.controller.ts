@@ -4,6 +4,7 @@ import { CreateWalletDto } from '../dtos/create-wallet.dto';
 import { WalletTransactionDto } from '../dtos/transaction.dto';
 import { JwtAuthGuard } from '@forex-marketplace/auth';
 
+
 @Controller('wallets')
 @UseGuards(JwtAuthGuard)
 export class WalletController {
