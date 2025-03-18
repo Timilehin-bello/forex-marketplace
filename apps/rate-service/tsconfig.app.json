@@ -4,10 +4,15 @@
     "outDir": "../../dist/out-tsc",
     "module": "commonjs",
     "types": ["node"],
-    "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "target": "es2021"
+    "target": "es2020"
   },
+  "exclude": ["jest.config.ts", "src/**/*.spec.ts", "src/**/*.test.ts"],
   "include": ["src/**/*.ts"],
-  "exclude": ["jest.config.ts", "src/**/*.spec.ts", "src/**/*.test.ts"]
+  "files": [
+    "../../libs/shared-types/src/index.ts",
+    "../../libs/shared-utils/src/index.ts",
+    "../../libs/database/src/index.ts",
+    "../../libs/grpc/src/index.ts"
+  ]
 }

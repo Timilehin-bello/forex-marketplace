@@ -1,4 +1,4 @@
-FROM node:18-alpine as builder
+FROM node:20-alpine as builder
 
 WORKDIR /app
 
@@ -11,10 +11,10 @@ RUN yarn install --frozen-lockfile
 # Copy source code
 COPY . .
 
-# Generate prisma client
+# Build all projects
 RUN yarn nx run-many --target=build --all
 
-FROM node:18-alpine
+FROM node:20-alpine
 
 WORKDIR /app
 
@@ -22,6 +22,10 @@ WORKDIR /app
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./
+
+# Copy proto files - important!
+COPY --from=builder /app/libs/grpc/src/lib/protos ./libs/grpc/src/lib/protos
+COPY --from=builder /app/apps/transaction-service/src/app/protos ./apps/transaction-service/src/app/protos
 
 # Expose port
 EXPOSE 3000

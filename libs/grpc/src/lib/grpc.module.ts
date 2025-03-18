@@ -23,7 +23,7 @@ export class GrpcModule {
             options: {
               package: options.package,
               protoPath: join(__dirname, 'protos', options.protoPath),
-              url: `${options.host || 'localhost'}:${options.port || 5000}`,
+              url: `${options.host || 'localhost'}:${options.port || 5001}`,
             },
           },
         ]),

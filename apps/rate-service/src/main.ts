@@ -16,9 +16,9 @@ async function bootstrap() {
       package: 'rate',
       protoPath: join(
         __dirname,
-        '../../../../../libs/grpc/src/lib/protos/rate.proto'
+        '../../../libs/grpc/src/lib/protos/rate.proto'
       ),
-      url: process.env['GRPC_URL'] || 'localhost:5000',
+      url: process.env['GRPC_URL'] || 'localhost:5001',
     },
   });
 
@@ -50,7 +50,7 @@ async function bootstrap() {
   Logger.log(`🚀 Rate Service is running on: http://localhost:${port}/api/v1`);
   Logger.log(
     `🚀 Rate gRPC Service is running on: ${
-      process.env['GRPC_URL'] || 'localhost:5000'
+      process.env['GRPC_URL'] || 'localhost:5001'
     }`
   );
 }

@@ -28,6 +28,7 @@ export class RateService implements OnModuleInit {
       this.logger.log('Fetching latest forex rates');
 
       const apiKey = process.env['EXCHANGE_RATE_API_KEY'] || 'your_api_key';
+      this.logger.log('apikey: ' + apiKey);
       const baseCurrencies = ['USD', 'EUR', 'GBP', 'JPY', 'CAD'];
 
       for (const baseCurrency of baseCurrencies) {

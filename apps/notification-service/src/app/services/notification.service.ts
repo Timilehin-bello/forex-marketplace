@@ -107,8 +107,8 @@ export class NotificationService {
           data.status,
           data.fromCurrency,
           data.toCurrency,
-          data.metadata?.fromAmount || 0,
-          data.metadata?.toAmount || 0
+          data.metadata?.fromAmount ? Number(data.metadata.fromAmount) : 0,
+          data.metadata?.toAmount ? Number(data.metadata.toAmount) : 0
         );
 
         await this.emailService.sendEmail(

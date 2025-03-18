@@ -24,9 +24,9 @@ import { join } from 'path';
           package: 'rate',
           protoPath: join(
             __dirname,
-            '../../../../../libs/grpc/src/lib/protos/rate.proto'
+            '../../../libs/grpc/src/lib/protos/rate.proto'
           ),
-          url: process.env['RATE_GRPC_URL'] || 'localhost:5000',
+          url: process.env['RATE_GRPC_URL'] || 'localhost:5001',
         },
       },
       {
@@ -34,8 +34,11 @@ import { join } from 'path';
         transport: Transport.GRPC,
         options: {
           package: 'wallet',
-          protoPath: join(__dirname, './protos/wallet.proto'),
-          url: process.env['WALLET_GRPC_URL'] || 'localhost:5001',
+          protoPath: join(
+            __dirname,
+            '../../../apps/transaction-service/src/app/protos/wallet.proto'
+          ),
+          url: process.env['WALLET_GRPC_URL'] || 'localhost:5002',
         },
       },
     ]),
