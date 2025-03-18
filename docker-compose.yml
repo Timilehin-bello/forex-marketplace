@@ -1,0 +1,154 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:14-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: forex
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ['CMD', 'rabbitmq-diagnostics', '-q', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  user-auth-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: node dist/apps/user-auth-service/main.js
+    ports:
+      - '3001:3001'
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - DB_DATABASE=forex
+      - JWT_SECRET=your_jwt_secret_key
+      - JWT_EXPIRES_IN=7d
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  wallet-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: node dist/apps/wallet-service/main.js
+    ports:
+      - '3002:3002'
+    environment:
+      - NODE_ENV=development
+      - PORT=3002
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - DB_DATABASE=forex
+      - JWT_SECRET=your_jwt_secret_key
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  rate-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: node dist/apps/rate-service/main.js
+    ports:
+      - '3003:3003'
+      - '5000:5000'
+    environment:
+      - NODE_ENV=development
+      - PORT=3003
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - DB_DATABASE=forex
+      - EXCHANGE_RATE_API_KEY=your_exchange_rate_api_key
+      - GRPC_URL=0.0.0.0:5000
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  transaction-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: node dist/apps/transaction-service/main.js
+    ports:
+      - '3004:3004'
+    environment:
+      - NODE_ENV=development
+      - PORT=3004
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - DB_DATABASE=forex
+      - JWT_SECRET=your_jwt_secret_key
+      - RATE_GRPC_URL=rate-service:5000
+      - WALLET_GRPC_URL=wallet-service:5001
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      - rate-service
+      - wallet-service
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: node dist/apps/notification-service/main.js
+    ports:
+      - '3005:3005'
+    environment:
+      - NODE_ENV=development
+      - PORT=3005
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - DB_DATABASE=forex
+      - JWT_SECRET=your_jwt_secret_key
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+      - EMAIL_FROM=noreply@forex-platform.com
+      # For production, add SMTP settings:
+      # - SMTP_HOST=smtp.example.com
+      # - SMTP_PORT=587
+      # - SMTP_SECURE=false
+      # - SMTP_USER=your_smtp_user
+      # - SMTP_PASSWORD=your_smtp_password
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

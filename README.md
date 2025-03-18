@@ -1,77 +1,127 @@
-# ForexMarketplace
+# Forex Marketplace Microservices
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+A microservices-based foreign exchange (Forex) marketplace built with NestJS, TypeScript, TypeORM, and PostgreSQL.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is almost ready ✨.
+## Architecture
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/getting-started/intro#learn-nx?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+This project consists of the following microservices:
 
-## Finish your CI setup
+- **User and Authentication Service**: Handles user registration, authentication, and profile management.
+- **Wallet Service**: Manages user wallet balances and transactions.
+- **Transaction and Order Service**: Processes forex buy/sell orders and maintains transaction history.
+- **Rate Service**: Fetches current forex rates from an external API and exposes them to other services via gRPC.
+- **Notification Service**: Sends notifications to users after successful transactions.
 
-[Click here to finish setting up your workspace!](https://cloud.nx.app/connect/Z0VLdXk8NL)
+## Technologies
 
+- **Backend Framework**: NestJS with TypeScript
+- **Database**: PostgreSQL with TypeORM
+- **Monorepo Management**: Nx
+- **Internal Communication**: gRPC for synchronous communication
+- **Message Queue**: RabbitMQ for asynchronous communication
+- **API Style**: REST for user-facing endpoints
+- **Containerization**: Docker and Docker Compose
 
-## Run tasks
+## Getting Started
 
-To run tasks with Nx use:
+### Prerequisites
 
-```sh
-npx nx <target> <project-name>
+- Node.js (v16+)
+- Yarn
+- Docker and Docker Compose
+- PostgreSQL (optional for local development without Docker)
+- RabbitMQ (optional for local development without Docker)
+
+### Installation
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://bitbucket.org/your-username/forex-marketplace.git
+   cd forex-marketplace
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   yarn install
+   ```
+
+3. Create an `.env` file based on the provided `.env.example`:
+   ```bash
+   cp .env.example .env
+   ```
+   Update the values as needed, especially the `EXCHANGE_RATE_API_KEY`.
+
+### Running with Docker
+
+The easiest way to run the entire application is using Docker Compose:
+
+```bash
+docker-compose up -d
 ```
 
-For example:
+This will start all services, PostgreSQL, and RabbitMQ.
 
-```sh
-npx nx build myproject
+### Running Locally (Development)
+
+To run services individually during development:
+
+1. Start PostgreSQL and RabbitMQ (using Docker or local installations)
+
+2. Build the shared libraries:
+
+   ```bash
+   yarn nx run-many --target=build --projects=shared-utils,shared-types,database,auth,grpc,message-queue
+   ```
+
+3. Run each service individually:
+
+   ```bash
+   # User Auth Service
+   yarn nx serve user-auth-service
+
+   # Wallet Service
+   yarn nx serve wallet-service
+
+   # Rate Service
+   yarn nx serve rate-service
+
+   # Transaction Service
+   yarn nx serve transaction-service
+
+   # Notification Service
+   yarn nx serve notification-service
+   ```
+
+## API Documentation
+
+The API documentation is available via Swagger UI when the services are running:
+
+- User Auth Service: http://localhost:3001/api/docs
+- Wallet Service: http://localhost:3002/api/docs
+- Rate Service: http://localhost:3003/api/docs
+- Transaction Service: http://localhost:3004/api/docs
+- Notification Service: http://localhost:3005/api/docs
+
+## Testing
+
+To run tests:
+
+```bash
+# Run all tests
+yarn nx run-many --target=test --all
+
+# Run tests for a specific project
+yarn nx test user-auth-service
 ```
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+## Contributing
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+1. Create a feature branch from `main`
+2. Make your changes
+3. Submit a pull request
 
-## Add new projects
+## License
 
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
-
-To install a new plugin you can use the `nx add` command. Here's an example of adding the React plugin:
-```sh
-npx nx add @nx/react
-```
-
-Use the plugin's generator to create new projects. For example, to create a new React app or library:
-
-```sh
-# Generate an app
-npx nx g @nx/react:app demo
-
-# Generate a library
-npx nx g @nx/react:lib some-lib
-```
-
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
-
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Install Nx Console
-
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
-
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Useful links
-
-Learn more:
-
-- [Learn more about this workspace setup](https://nx.dev/getting-started/intro#learn-nx?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+This project is licensed under the MIT License - see the LICENSE file for details.
