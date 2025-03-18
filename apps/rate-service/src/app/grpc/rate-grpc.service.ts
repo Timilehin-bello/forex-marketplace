@@ -16,8 +16,6 @@ interface RateResponse {
   timestamp: string;
 }
 
-type EmptyRequest = Record<string, never>;
-
 interface AllRatesResponse {
   rates: RateResponse[];
 }
@@ -70,7 +68,7 @@ export class RateGrpcService {
   }
 
   @GrpcMethod('RateService', 'GetAllRates')
-  async getAllRates(data: EmptyRequest): Promise<AllRatesResponse> {
+  async getAllRates(): Promise<AllRatesResponse> {
     this.logger.log('gRPC GetAllRates called');
     this.loggerService.log('gRPC GetAllRates called');
     try {

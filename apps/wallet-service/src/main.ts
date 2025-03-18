@@ -1,15 +1,9 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
-import {
-  MicroserviceOptions,
-  Transport,
-  GrpcOptions,
-} from '@nestjs/microservices';
+import { Transport, GrpcOptions } from '@nestjs/microservices';
 import { AppModule } from './app/app.module';
 import { ExceptionFilter } from '@forex-marketplace/shared-utils';
-import { join } from 'path';
-import { readFileSync } from 'fs';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

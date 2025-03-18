@@ -12,7 +12,7 @@ import { Order } from '../entities/order.entity';
 import { Transaction } from '../entities/transaction.entity';
 import { CreateOrderDto } from '../dtos/create-order.dto';
 import { LoggerService } from '@forex-marketplace/shared-utils';
-import { OrderStatus, OrderType } from '@forex-marketplace/shared-types';
+import { OrderStatus } from '@forex-marketplace/shared-types';
 import {
   NotificationPattern,
   TransactionNotificationEvent,
@@ -47,9 +47,18 @@ interface WalletService {
   getWalletByUserIdAndCurrency(data: {
     userId: string;
     currency: string;
-  }): Observable<any>;
-  processTransaction(data: any): Observable<any>;
-  createWallet(data: { userId: string; currency: string }): Observable<any>;
+  }): Observable<{ id: string; balance: number; currency: string }>;
+  processTransaction(data: {
+    walletId: string;
+    type: 'DEBIT' | 'CREDIT';
+    amount: number;
+    description: string;
+    referenceId: string;
+  }): Observable<{ success: boolean; transactionId: string }>;
+  createWallet(data: {
+    userId: string;
+    currency: string;
+  }): Observable<{ walletId: string; currency: string }>;
 }
 
 @Injectable()
@@ -208,7 +217,7 @@ export class TransactionService implements OnModuleInit {
             currency: order.toCurrency,
           })
         );
-      } catch (error) {
+      } catch {
         // Create the wallet if it doesn't exist
         toWallet = await firstValueFrom(
           this.walletServiceClient.createWallet({
