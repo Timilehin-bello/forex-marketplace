@@ -104,6 +104,13 @@ export class WalletService {
   ): Promise<WalletTransaction> {
     const { walletId, type, amount, description, referenceId } = transactionDto;
 
+    this.logger.log(
+      `Processing transaction: ${JSON.stringify(transactionDto)}`
+    );
+    this.logger.log(
+      `Amount before processing: ${amount}, Type: ${typeof amount}`
+    );
+
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -119,15 +126,21 @@ export class WalletService {
         throw new NotFoundException(`Wallet with ID ${walletId} not found`);
       }
 
-      // Update wallet balance
+      this.logger.log(`Wallet before update: ${JSON.stringify(wallet)}`);
+
+      // Update wallet balance - ensure we're working with proper numeric values
+      const numericAmount = Number(amount);
+
       if (type === 'CREDIT') {
-        wallet.balance += amount;
+        wallet.balance = Number(wallet.balance) + numericAmount;
       } else if (type === 'DEBIT') {
-        if (wallet.balance < amount) {
+        if (Number(wallet.balance) < numericAmount) {
           throw new BadRequestException('Insufficient funds');
         }
-        wallet.balance -= amount;
+        wallet.balance = Number(wallet.balance) - numericAmount;
       }
+
+      this.logger.log(`Wallet after update: ${JSON.stringify(wallet)}`);
 
       // Save updated wallet
       await queryRunner.manager.save(wallet);
