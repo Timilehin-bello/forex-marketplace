@@ -4,6 +4,7 @@ import { Wallet } from './entities/wallet.entity';
 import { WalletTransaction } from './entities/wallet-transaction.entity';
 import { WalletService } from './services/wallet.service';
 import { WalletController } from './controllers/wallet.controller';
+import { WalletGrpcController } from './grpc/wallet-grpc.controller';
 import { DatabaseModule } from '@forex-marketplace/database';
 import { SharedUtilsModule } from '@forex-marketplace/shared-utils';
 import { MessageQueueModule } from '@forex-marketplace/message-queue';
@@ -19,7 +20,7 @@ import { JwtStrategy } from '@forex-marketplace/auth';
       queue: 'notifications',
     }),
   ],
-  controllers: [WalletController],
+  controllers: [WalletController, WalletGrpcController],
   providers: [WalletService, JwtStrategy],
   exports: [WalletService],
 })

@@ -57,6 +57,7 @@ services:
     command: node dist/apps/wallet-service/main.js
     ports:
       - '3002:3002'
+      - '5002:5002'
     environment:
       - NODE_ENV=development
       - PORT=3002
@@ -67,6 +68,10 @@ services:
       - DB_DATABASE=forex
       - JWT_SECRET=your_jwt_secret_key
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+      - GRPC_URL=0.0.0.0:5002
+    volumes:
+      - ./apps/transaction-service/src/app/protos:/app/apps/transaction-service/src/app/protos
+      - ./apps/wallet-service/src/protos:/app/dist/apps/wallet-service/protos
     depends_on:
       postgres:
         condition: service_healthy

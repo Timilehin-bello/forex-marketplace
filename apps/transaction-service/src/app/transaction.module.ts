@@ -27,6 +27,22 @@ import { join } from 'path';
             '../../../libs/grpc/src/lib/protos/rate.proto'
           ),
           url: process.env['RATE_GRPC_URL'] || 'localhost:5001',
+          loader: {
+            keepCase: true,
+            longs: String,
+            enums: String,
+            defaults: true,
+            oneofs: true,
+          },
+          maxSendMessageLength: 10 * 1024 * 1024, // 10MB
+          maxReceiveMessageLength: 10 * 1024 * 1024, // 10MB
+          channelOptions: {
+            'grpc.keepalive_time_ms': 120000, // 2 minutes
+            'grpc.keepalive_timeout_ms': 20000, // 20 seconds
+            'grpc.keepalive_permit_without_calls': 1,
+            'grpc.http2.min_time_between_pings_ms': 120000, // 2 minutes
+            'grpc.http2.max_pings_without_data': 0,
+          },
         },
       },
       {
@@ -39,6 +55,13 @@ import { join } from 'path';
             '../../../apps/transaction-service/src/app/protos/wallet.proto'
           ),
           url: process.env['WALLET_GRPC_URL'] || 'localhost:5002',
+          loader: {
+            keepCase: true,
+            longs: String,
+            enums: String,
+            defaults: true,
+            oneofs: true,
+          },
         },
       },
     ]),

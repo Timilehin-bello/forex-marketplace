@@ -20,12 +20,27 @@ import {
 } from '@forex-marketplace/message-queue';
 
 // Define interfaces for gRPC services with Observable return types
+interface RateRequest {
+  baseCurrency: string;
+  targetCurrency: string;
+}
+
+interface RateResponse {
+  baseCurrency: string;
+  targetCurrency: string;
+  rate: number;
+  timestamp: string;
+}
+
+type EmptyRequest = Record<string, never>;
+
+interface AllRatesResponse {
+  rates: RateResponse[];
+}
+
 interface RateService {
-  getRate(data: {
-    baseCurrency: string;
-    targetCurrency: string;
-  }): Observable<any>;
-  getAllRates(data: object): Observable<any>;
+  getRate(data: RateRequest): Observable<RateResponse>;
+  getAllRates(data: EmptyRequest): Observable<AllRatesResponse>;
 }
 
 interface WalletService {
@@ -59,14 +74,24 @@ export class TransactionService implements OnModuleInit {
     this.rateService = this.rateClient.getService<RateService>('RateService');
     this.walletServiceClient =
       this.walletClient.getService<WalletService>('WalletService');
+    this.logger.log('gRPC clients initialized');
+    this.logger.log(`Rate service client: ${typeof this.rateService}`);
+    this.logger.log(
+      `Wallet service client: ${typeof this.walletServiceClient}`
+    );
   }
 
   async createOrder(createOrderDto: CreateOrderDto): Promise<Order> {
     const { userId, type, fromCurrency, toCurrency, fromAmount } =
       createOrderDto;
 
+    this.logger.log(`Creating order: ${JSON.stringify(createOrderDto)}`);
+
     try {
       // Get current exchange rate
+      this.logger.log(
+        `Getting rate for ${fromCurrency}/${toCurrency} via gRPC`
+      );
       const rateData = await firstValueFrom(
         this.rateService.getRate({
           baseCurrency: fromCurrency,
@@ -84,6 +109,9 @@ export class TransactionService implements OnModuleInit {
       }
 
       const rate = rateData.rate;
+      this.logger.log(
+        `Received rate: ${rate} for ${fromCurrency}/${toCurrency}`
+      );
       const toAmount = fromAmount * rate;
 
       // Create order

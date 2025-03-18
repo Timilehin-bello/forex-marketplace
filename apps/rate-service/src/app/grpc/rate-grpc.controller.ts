@@ -1,9 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Controller, Logger } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
 import { RateService } from '../services/rate.service';
 import { LoggerService } from '@forex-marketplace/shared-utils';
 
-// This matches the protobuf definition exactly
 interface RateRequest {
   baseCurrency: string;
   targetCurrency: string;
@@ -22,17 +21,17 @@ interface AllRatesResponse {
   rates: RateResponse[];
 }
 
-@Injectable()
-export class RateGrpcService {
-  private readonly logger = new Logger(RateGrpcService.name);
+@Controller()
+export class RateGrpcController {
+  private readonly logger = new Logger(RateGrpcController.name);
 
   constructor(
     private readonly rateService: RateService,
     private readonly loggerService: LoggerService
   ) {
-    this.loggerService.log('RateGrpcService initialized');
-    this.logger.log('RateGrpcService initialized with NestJS Logger');
-    this.logger.log('Available methods:');
+    this.loggerService.log('RateGrpcController initialized');
+    this.logger.log('RateGrpcController initialized with NestJS Logger');
+    this.logger.log('Available gRPC methods:');
     this.logger.log('- GetRate');
     this.logger.log('- GetAllRates');
   }
