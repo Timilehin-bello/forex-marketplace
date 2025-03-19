@@ -1,17 +1,23 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
-import { User } from './entities/user.entity';
-import { UserService } from './services/user.service';
-import { UserController } from './controllers/user.controller';
-import { UserGrpcController } from './grpc/user-grpc.controller';
+import { ConfigModule } from '@nestjs/config';
+import { CommandFactory } from 'nest-commander';
+import { CreateAdminCommand } from './create-admin.command';
+import { User } from '../entities/user.entity';
+import { UserService } from '../services/user.service';
 import { DatabaseModule } from '@forex-marketplace/database';
 import { SharedUtilsModule } from '@forex-marketplace/shared-utils';
-import { JwtStrategy } from '@forex-marketplace/auth';
-import { AdminSeedService } from './seed/admin-seed.service';
 
+/**
+ * Module for CLI commands
+ * This module includes command handlers for administrative tasks
+ */
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     DatabaseModule,
     TypeOrmModule.forFeature([User]),
     SharedUtilsModule,
@@ -20,8 +26,6 @@ import { AdminSeedService } from './seed/admin-seed.service';
       signOptions: { expiresIn: process.env['JWT_EXPIRES_IN'] || '7d' },
     }),
   ],
-  controllers: [UserController, UserGrpcController],
-  providers: [UserService, JwtStrategy, AdminSeedService],
-  exports: [UserService],
+  providers: [CreateAdminCommand, UserService],
 })
-export class UserAuthModule {}
+export class CliModule {}

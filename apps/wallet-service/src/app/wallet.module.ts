@@ -8,13 +8,14 @@ import { WalletGrpcController } from './grpc/wallet-grpc.controller';
 import { DatabaseModule } from '@forex-marketplace/database';
 import { SharedUtilsModule } from '@forex-marketplace/shared-utils';
 import { MessageQueueModule } from '@forex-marketplace/message-queue';
-import { JwtStrategy } from '@forex-marketplace/auth';
+import { JwtStrategy, AuthModule } from '@forex-marketplace/auth';
 
 @Module({
   imports: [
     DatabaseModule,
     TypeOrmModule.forFeature([Wallet, WalletTransaction]),
     SharedUtilsModule,
+    AuthModule,
     MessageQueueModule.register({
       name: 'NOTIFICATION_SERVICE',
       queue: 'notifications',

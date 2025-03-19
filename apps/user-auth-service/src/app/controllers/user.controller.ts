@@ -1,8 +1,21 @@
-import { Controller, Post, Body, Get, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  UseGuards,
+  Req,
+  Param,
+} from '@nestjs/common';
 import { UserService } from '../services/user.service';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { LoginDto } from '../dtos/login.dto';
-import { JwtAuthGuard } from '@forex-marketplace/auth';
+import {
+  JwtAuthGuard,
+  CurrentUser,
+  Roles,
+  RolesGuard,
+} from '@forex-marketplace/auth';
 
 @Controller('users')
 export class UserController {
@@ -20,9 +33,31 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Get('profile')
-  async getProfile(@Req() req) {
-    const user = await this.userService.findById(req.user.userId);
-    const { password, ...result } = user;
+  async getProfile(@CurrentUser() user) {
+    const userEntity = await this.userService.findById(user.id);
+    const { password, ...result } = userEntity;
     return result;
+  }
+
+  // Admin user creation - requires admin access
+  @Post('admin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  async createAdmin(
+    @Body() createUserDto: CreateUserDto,
+    @CurrentUser() currentUser
+  ) {
+    return this.userService.createAdmin(createUserDto, currentUser);
+  }
+
+  // Promote existing user to admin - requires admin access
+  @Post('promote/:userId')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  async promoteToAdmin(
+    @Param('userId') userId: string,
+    @CurrentUser() currentUser
+  ) {
+    return this.userService.promoteToAdmin(userId, currentUser);
   }
 }

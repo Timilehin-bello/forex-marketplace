@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+import { AuthorizationService } from './authorization.service';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { PassportModule } from '@nestjs/passport';
       }),
     }),
   ],
-  exports: [PassportModule, JwtModule],
+  providers: [AuthorizationService],
+  exports: [PassportModule, JwtModule, AuthorizationService],
 })
 export class AuthModule {}

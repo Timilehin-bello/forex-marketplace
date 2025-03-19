@@ -27,6 +27,12 @@ export class User implements IUser {
   @Column({ default: true })
   isActive: boolean;
 
+  @Column({ default: false })
+  isAdmin: boolean;
+
+  @Column('simple-array', { nullable: true })
+  roles: string[];
+
   @CreateDateColumn()
   createdAt: Date;
 

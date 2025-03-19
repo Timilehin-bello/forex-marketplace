@@ -8,7 +8,7 @@ import { TransactionController } from './controllers/transaction.controller';
 import { DatabaseModule } from '@forex-marketplace/database';
 import { SharedUtilsModule } from '@forex-marketplace/shared-utils';
 import { MessageQueueModule } from '@forex-marketplace/message-queue';
-import { JwtStrategy } from '@forex-marketplace/auth';
+import { JwtStrategy, AuthModule } from '@forex-marketplace/auth';
 import { join } from 'path';
 
 @Module({
@@ -16,6 +16,7 @@ import { join } from 'path';
     DatabaseModule,
     TypeOrmModule.forFeature([Order, Transaction]),
     SharedUtilsModule,
+    AuthModule,
     ClientsModule.register([
       {
         name: 'RATE_SERVICE',

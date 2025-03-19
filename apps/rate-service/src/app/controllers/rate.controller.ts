@@ -1,5 +1,13 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  HttpStatus,
+  HttpException,
+} from '@nestjs/common';
 import { RateService } from '../services/rate.service';
+import { ApiResponse, successResponse } from '@forex-marketplace/shared-utils';
+import { ForexRate } from '../entities/rate.entity';
 
 @Controller('rates')
 export class RateController {
@@ -9,12 +17,18 @@ export class RateController {
   async getRate(
     @Param('baseCurrency') baseCurrency: string,
     @Param('targetCurrency') targetCurrency: string
-  ) {
-    return this.rateService.getRate(baseCurrency, targetCurrency);
+  ): Promise<ApiResponse<ForexRate>> {
+    try {
+      const rate = await this.rateService.getRate(baseCurrency, targetCurrency);
+      return successResponse(rate);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+    }
   }
 
   @Get()
-  async getAllRates() {
-    return this.rateService.getAllRates();
+  async getAllRates(): Promise<ApiResponse<ForexRate[]>> {
+    const rates = await this.rateService.getAllRates();
+    return successResponse(rates);
   }
 }

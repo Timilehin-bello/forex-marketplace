@@ -33,13 +33,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: node dist/apps/user-auth-service/main.js
-    ports:
-      - '3001:3001'
-      - '5003:5003'
+    entrypoint: ['/app/docker-entrypoint.sh']
     environment:
       - NODE_ENV=development
       - PORT=3001
+      - SERVICE_NAME=user-auth-service
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_USERNAME=postgres
@@ -48,23 +46,30 @@ services:
       - JWT_SECRET=your_jwt_secret_key
       - JWT_EXPIRES_IN=7d
       - GRPC_URL=0.0.0.0:5003
+      # Admin user credentials
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@forex-marketplace.com}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-Admin@123456}
+      - ADMIN_FIRSTNAME=${ADMIN_FIRSTNAME:-Super}
+      - ADMIN_LASTNAME=${ADMIN_LASTNAME:-Admin}
+    ports:
+      - '3001:3001'
+      - '5003:5003'
     depends_on:
       postgres:
         condition: service_healthy
     volumes:
       - ./libs/grpc/src/lib/protos:/app/libs/grpc/src/lib/protos
+      - ./docker-entrypoint.sh:/app/docker-entrypoint.sh
 
   wallet-service:
     build:
       context: .
       dockerfile: Dockerfile
-    command: node dist/apps/wallet-service/main.js
-    ports:
-      - '3002:3002'
-      - '5002:5002'
+    entrypoint: ['/app/docker-entrypoint.sh']
     environment:
       - NODE_ENV=development
       - PORT=3002
+      - SERVICE_NAME=wallet-service
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_USERNAME=postgres
@@ -73,9 +78,13 @@ services:
       - JWT_SECRET=your_jwt_secret_key
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
       - GRPC_URL=0.0.0.0:5002
+    ports:
+      - '3002:3002'
+      - '5002:5002'
     volumes:
       - ./apps/transaction-service/src/app/protos:/app/apps/transaction-service/src/app/protos
       - ./apps/wallet-service/src/protos:/app/dist/apps/wallet-service/protos
+      - ./docker-entrypoint.sh:/app/docker-entrypoint.sh
     depends_on:
       postgres:
         condition: service_healthy
@@ -86,13 +95,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: node dist/apps/rate-service/main.js
-    ports:
-      - '3003:3003'
-      - '5001:5001'
+    entrypoint: ['/app/docker-entrypoint.sh']
     environment:
       - NODE_ENV=development
       - PORT=3003
+      - SERVICE_NAME=rate-service
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_USERNAME=postgres
@@ -100,8 +107,12 @@ services:
       - DB_DATABASE=forex
       - EXCHANGE_RATE_API_KEY=${EXCHANGE_RATE_API_KEY}
       - GRPC_URL=0.0.0.0:5001
+    ports:
+      - '3003:3003'
+      - '5001:5001'
     volumes:
       - ./libs/grpc/src/lib/protos:/app/libs/grpc/src/lib/protos
+      - ./docker-entrypoint.sh:/app/docker-entrypoint.sh
     depends_on:
       postgres:
         condition: service_healthy
@@ -110,12 +121,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: node dist/apps/transaction-service/main.js
-    ports:
-      - '3004:3004'
+    entrypoint: ['/app/docker-entrypoint.sh']
     environment:
       - NODE_ENV=development
       - PORT=3004
+      - SERVICE_NAME=transaction-service
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_USERNAME=postgres
@@ -126,9 +136,12 @@ services:
       - WALLET_GRPC_URL=wallet-service:5002
       - USER_GRPC_URL=user-auth-service:5003
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+    ports:
+      - '3004:3004'
     volumes:
       - ./libs/grpc/src/lib/protos:/app/libs/grpc/src/lib/protos
       - ./apps/transaction-service/src/app/protos:/app/apps/transaction-service/src/app/protos
+      - ./docker-entrypoint.sh:/app/docker-entrypoint.sh
     depends_on:
       - rate-service
       - wallet-service
@@ -138,12 +151,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: node dist/apps/notification-service/main.js
-    ports:
-      - '3005:3005'
+    entrypoint: ['/app/docker-entrypoint.sh']
     environment:
       - NODE_ENV=development
       - PORT=3005
+      - SERVICE_NAME=notification-service
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_USERNAME=postgres
@@ -158,6 +170,10 @@ services:
       - SMTP_SECURE=false
       - SMTP_USER=${SMTP_USER}
       - SMTP_PASSWORD=${SMTP_PASSWORD}
+    ports:
+      - '3005:3005'
+    volumes:
+      - ./docker-entrypoint.sh:/app/docker-entrypoint.sh
     depends_on:
       rabbitmq:
         condition: service_healthy

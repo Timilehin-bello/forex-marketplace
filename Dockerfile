@@ -6,7 +6,7 @@ WORKDIR /app
 COPY package.json yarn.lock ./
 
 # Install dependencies
-RUN yarn install --frozen-lockfile
+RUN yarn install
 
 # Copy source code
 COPY . .
@@ -23,12 +23,19 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./
 
+# Copy entrypoint script
+COPY docker-entrypoint.sh ./
+RUN chmod +x /app/docker-entrypoint.sh
+
 # Copy proto files - important!
 COPY --from=builder /app/libs/grpc/src/lib/protos ./libs/grpc/src/lib/protos
 COPY --from=builder /app/apps/transaction-service/src/app/protos ./apps/transaction-service/src/app/protos
 
+# Set environment variable for service name
+ENV SERVICE_NAME=user-auth-service
+
 # Expose port
 EXPOSE 3000
 
-# Start the application
-CMD ["node", "dist/apps/user-auth-service/main.js"]
+# Use entrypoint script
+CMD ["/bin/sh", "-c", "/app/docker-entrypoint.sh"]
