@@ -3,7 +3,7 @@ import { WalletService } from '../services/wallet.service';
 import { CreateWalletDto } from '../dtos/create-wallet.dto';
 import { WalletTransactionDto } from '../dtos/transaction.dto';
 import { JwtAuthGuard } from '@forex-marketplace/auth';
-
+import { v4 as uuidv4 } from 'uuid';
 
 @Controller('wallets')
 @UseGuards(JwtAuthGuard)
@@ -35,6 +35,14 @@ export class WalletController {
 
   @Post('transaction')
   async processTransaction(@Body() transactionDto: WalletTransactionDto) {
+    // Generate referenceId if not provided
+    if (!transactionDto.referenceId) {
+      if (transactionDto.type === 'CREDIT') {
+        transactionDto.referenceId = `DEP-${uuidv4()}`;
+      } else if (transactionDto.type === 'DEBIT') {
+        transactionDto.referenceId = `WDR-${uuidv4()}`;
+      }
+    }
     return this.walletService.processTransaction(transactionDto);
   }
 
