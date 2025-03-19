@@ -122,19 +122,29 @@ export class TransactionService implements OnModuleInit {
       this.logger.log(
         `Getting rate for ${fromCurrency}/${toCurrency} via gRPC`
       );
-      const rateData = await firstValueFrom(
-        this.rateService.getRate({
-          baseCurrency: fromCurrency,
-          targetCurrency: toCurrency,
-        })
-      );
+      let rateData;
+      try {
+        rateData = await firstValueFrom(
+          this.rateService.getRate({
+            baseCurrency: fromCurrency,
+            targetCurrency: toCurrency,
+          })
+        );
+      } catch (rateError) {
+        this.logger.error(
+          `Failed to get rate for ${fromCurrency}/${toCurrency}: ${rateError.message}`
+        );
+        throw new BadRequestException(
+          `Currency pair ${fromCurrency}/${toCurrency} is not available for trading`
+        );
+      }
 
       if (!rateData || !rateData.rate) {
         this.logger.error(
-          `Failed to get rate for ${fromCurrency}/${toCurrency}`
+          `Invalid rate data for ${fromCurrency}/${toCurrency}`
         );
         throw new BadRequestException(
-          `Failed to get rate for ${fromCurrency}/${toCurrency}`
+          `Currency pair ${fromCurrency}/${toCurrency} is not available for trading`
         );
       }
 
@@ -400,6 +410,16 @@ export class TransactionService implements OnModuleInit {
             );
           }
 
+          // Prepare error message for notification
+          let errorMessage = error.message;
+          if (
+            error.message.includes('Rate not found') ||
+            error.message.includes('currency pair') ||
+            error.message.includes('not available for trading')
+          ) {
+            errorMessage = `Currency pair ${order.fromCurrency}/${order.toCurrency} is not available for trading`;
+          }
+
           // Send failure notification
           this.notificationClient.emit(
             NotificationPattern.SEND_ORDER_NOTIFICATION,
@@ -412,7 +432,7 @@ export class TransactionService implements OnModuleInit {
               order.toCurrency,
               userEmail, // Now using the fetched email
               {
-                error: error.message,
+                error: errorMessage,
               }
             )
           );

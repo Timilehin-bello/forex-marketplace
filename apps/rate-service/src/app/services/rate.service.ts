@@ -149,7 +149,9 @@ export class RateService implements OnModuleInit {
         }
       }
 
-      throw new Error(`Rate not found for ${baseCurrency}/${targetCurrency}`);
+      throw new Error(
+        `Currency pair ${baseCurrency}/${targetCurrency} is not available for trading`
+      );
     }
 
     return rate;

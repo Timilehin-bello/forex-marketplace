@@ -64,7 +64,9 @@ export class RateGrpcController {
         `gRPC GetRate error: ${error.message}`,
         error.stack
       );
-      throw error;
+
+      // Preserve the original error message which should already be clear
+      throw new Error(error.message);
     }
   }
 
