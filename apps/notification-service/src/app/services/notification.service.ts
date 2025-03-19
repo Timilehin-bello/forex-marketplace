@@ -25,6 +25,12 @@ export class NotificationService {
     return this.notificationRepository.save(notification);
   }
 
+  async getNotificationById(id: string): Promise<Notification> {
+    return this.notificationRepository.findOne({
+      where: { id },
+    });
+  }
+
   async markAsRead(id: string): Promise<Notification> {
     const notification = await this.notificationRepository.findOne({
       where: { id },

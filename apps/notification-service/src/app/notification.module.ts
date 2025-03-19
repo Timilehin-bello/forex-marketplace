@@ -7,13 +7,14 @@ import { NotificationController } from './controllers/notification.controller';
 import { NotificationConsumers } from './consumers/notification.consumers';
 import { DatabaseModule } from '@forex-marketplace/database';
 import { SharedUtilsModule } from '@forex-marketplace/shared-utils';
-import { JwtStrategy } from '@forex-marketplace/auth';
+import { JwtStrategy, AuthModule } from '@forex-marketplace/auth';
 
 @Module({
   imports: [
     DatabaseModule,
     TypeOrmModule.forFeature([Notification]),
     SharedUtilsModule,
+    AuthModule,
   ],
   controllers: [NotificationController, NotificationConsumers],
   providers: [NotificationService, EmailService, JwtStrategy],
