@@ -61,10 +61,23 @@ interface WalletService {
   }): Observable<{ walletId: string; currency: string }>;
 }
 
+interface UserService {
+  getUserById(data: { id: string }): Observable<{
+    id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    isActive: boolean;
+    createdAt: string;
+    updatedAt: string;
+  }>;
+}
+
 @Injectable()
 export class TransactionService implements OnModuleInit {
   private rateService: RateService;
   private walletServiceClient: WalletService;
+  private userServiceClient: UserService;
 
   constructor(
     @InjectRepository(Order)
@@ -75,6 +88,7 @@ export class TransactionService implements OnModuleInit {
     private readonly logger: LoggerService,
     @Inject('RATE_SERVICE') private readonly rateClient: ClientGrpc,
     @Inject('WALLET_SERVICE') private readonly walletClient: ClientGrpc,
+    @Inject('USER_SERVICE') private readonly userClient: ClientGrpc,
     @Inject('NOTIFICATION_SERVICE')
     private readonly notificationClient: ClientProxy
   ) {}
@@ -83,11 +97,14 @@ export class TransactionService implements OnModuleInit {
     this.rateService = this.rateClient.getService<RateService>('RateService');
     this.walletServiceClient =
       this.walletClient.getService<WalletService>('WalletService');
+    this.userServiceClient =
+      this.userClient.getService<UserService>('UserService');
     this.logger.log('gRPC clients initialized');
     this.logger.log(`Rate service client: ${typeof this.rateService}`);
     this.logger.log(
       `Wallet service client: ${typeof this.walletServiceClient}`
     );
+    this.logger.log(`User service client: ${typeof this.userServiceClient}`);
   }
 
   async createOrder(createOrderDto: CreateOrderDto): Promise<Order> {
@@ -282,6 +299,23 @@ export class TransactionService implements OnModuleInit {
       // Commit the transaction
       await queryRunner.commitTransaction();
 
+      // Get user email from user service
+      let userEmail = '';
+      try {
+        const userResponse = await firstValueFrom(
+          this.userServiceClient.getUserById({ id: order.userId })
+        );
+        userEmail = userResponse.email;
+        this.logger.log(
+          `Found user email: ${userEmail} for user ID: ${order.userId}`
+        );
+      } catch (error) {
+        this.logger.error(
+          `Error fetching user email: ${error.message}`,
+          error.stack
+        );
+      }
+
       // Send notifications
       this.notificationClient.emit(
         NotificationPattern.SEND_TRANSACTION_NOTIFICATION,
@@ -291,7 +325,7 @@ export class TransactionService implements OnModuleInit {
           order.fromAmount,
           order.fromCurrency,
           'DEBIT',
-          '', // Email should be fetched from user service in a real implementation
+          userEmail, // Now using the fetched email
           {
             orderId: order.id,
             fromCurrency: order.fromCurrency,
@@ -311,7 +345,7 @@ export class TransactionService implements OnModuleInit {
           order.type,
           order.fromCurrency,
           order.toCurrency,
-          '', // Email should be fetched from user service in a real implementation
+          userEmail, // Now using the fetched email
           {
             fromAmount: order.fromAmount,
             toAmount: order.toAmount,
@@ -332,6 +366,20 @@ export class TransactionService implements OnModuleInit {
           order.status = OrderStatus.FAILED;
           await this.orderRepository.save(order);
 
+          // Get user email from user service
+          let userEmail = '';
+          try {
+            const userResponse = await firstValueFrom(
+              this.userServiceClient.getUserById({ id: order.userId })
+            );
+            userEmail = userResponse.email;
+          } catch (emailError) {
+            this.logger.error(
+              `Error fetching user email: ${emailError.message}`,
+              emailError.stack
+            );
+          }
+
           // Send failure notification
           this.notificationClient.emit(
             NotificationPattern.SEND_ORDER_NOTIFICATION,
@@ -342,7 +390,7 @@ export class TransactionService implements OnModuleInit {
               order.type,
               order.fromCurrency,
               order.toCurrency,
-              '', // Email should be fetched from user service in a real implementation
+              userEmail, // Now using the fetched email
               {
                 error: error.message,
               }

@@ -64,6 +64,25 @@ import { join } from 'path';
           },
         },
       },
+      {
+        name: 'USER_SERVICE',
+        transport: Transport.GRPC,
+        options: {
+          package: 'user',
+          protoPath: join(
+            __dirname,
+            '../../../apps/transaction-service/src/app/protos/user.proto'
+          ),
+          url: process.env['USER_GRPC_URL'] || 'localhost:5003',
+          loader: {
+            keepCase: true,
+            longs: String,
+            enums: String,
+            defaults: true,
+            oneofs: true,
+          },
+        },
+      },
     ]),
     MessageQueueModule.register({
       name: 'NOTIFICATION_SERVICE',

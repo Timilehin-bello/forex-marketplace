@@ -36,6 +36,7 @@ services:
     command: node dist/apps/user-auth-service/main.js
     ports:
       - '3001:3001'
+      - '5003:5003'
     environment:
       - NODE_ENV=development
       - PORT=3001
@@ -46,9 +47,12 @@ services:
       - DB_DATABASE=forex
       - JWT_SECRET=your_jwt_secret_key
       - JWT_EXPIRES_IN=7d
+      - GRPC_URL=0.0.0.0:5003
     depends_on:
       postgres:
         condition: service_healthy
+    volumes:
+      - ./libs/grpc/src/lib/protos:/app/libs/grpc/src/lib/protos
 
   wallet-service:
     build:
@@ -120,6 +124,7 @@ services:
       - JWT_SECRET=your_jwt_secret_key
       - RATE_GRPC_URL=rate-service:5001
       - WALLET_GRPC_URL=wallet-service:5002
+      - USER_GRPC_URL=user-auth-service:5003
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
     volumes:
       - ./libs/grpc/src/lib/protos:/app/libs/grpc/src/lib/protos
@@ -127,6 +132,7 @@ services:
     depends_on:
       - rate-service
       - wallet-service
+      - user-auth-service
 
   notification-service:
     build:
