@@ -17,6 +17,10 @@ import {
   NotificationPattern,
   WalletNotificationEvent,
 } from '@forex-marketplace/message-queue';
+import {
+  PaginatedResult,
+  PaginationHelper,
+} from '@forex-marketplace/shared-types';
 
 @Injectable()
 export class WalletService {
@@ -77,8 +81,19 @@ export class WalletService {
     return wallet;
   }
 
-  async getWalletsByUserId(userId: string): Promise<Wallet[]> {
-    return this.walletRepository.find({ where: { userId } });
+  async getWalletsByUserId(
+    userId: string,
+    page = 1,
+    limit = 10
+  ): Promise<PaginatedResult<Wallet>> {
+    const [items, total] = await this.walletRepository.findAndCount({
+      where: { userId },
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { currency: 'ASC' },
+    });
+
+    return PaginationHelper.paginate(items, total, page, limit);
   }
 
   async getWalletByUserIdAndCurrency(
@@ -192,11 +207,17 @@ export class WalletService {
   }
 
   async getTransactionsByWalletId(
-    walletId: string
-  ): Promise<WalletTransaction[]> {
-    return this.transactionRepository.find({
+    walletId: string,
+    page = 1,
+    limit = 10
+  ): Promise<PaginatedResult<WalletTransaction>> {
+    const [items, total] = await this.transactionRepository.findAndCount({
       where: { walletId },
+      skip: (page - 1) * limit,
+      take: limit,
       order: { createdAt: 'DESC' },
     });
+
+    return PaginationHelper.paginate(items, total, page, limit);
   }
 }

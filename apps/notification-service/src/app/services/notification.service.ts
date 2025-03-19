@@ -4,7 +4,11 @@ import { Repository } from 'typeorm';
 import { Notification } from '../entities/notification.entity';
 import { EmailService } from './email.service';
 import { LoggerService } from '@forex-marketplace/shared-utils';
-import { NotificationType } from '@forex-marketplace/shared-types';
+import {
+  NotificationType,
+  PaginatedResult,
+  PaginationHelper,
+} from '@forex-marketplace/shared-types';
 import {
   TransactionNotificationEvent,
   OrderNotificationEvent,
@@ -43,11 +47,19 @@ export class NotificationService {
     return this.notificationRepository.save(notification);
   }
 
-  async getUserNotifications(userId: string): Promise<Notification[]> {
-    return this.notificationRepository.find({
+  async getUserNotifications(
+    userId: string,
+    page = 1,
+    limit = 10
+  ): Promise<PaginatedResult<Notification>> {
+    const [items, total] = await this.notificationRepository.findAndCount({
       where: { userId },
       order: { createdAt: 'DESC' },
+      skip: (page - 1) * limit,
+      take: limit,
     });
+
+    return PaginationHelper.paginate(items, total, page, limit);
   }
 
   async handleTransactionNotification(

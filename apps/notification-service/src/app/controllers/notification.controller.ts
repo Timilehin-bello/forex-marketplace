@@ -5,6 +5,7 @@ import {
   Put,
   UseGuards,
   NotFoundException,
+  Query,
 } from '@nestjs/common';
 import { NotificationService } from '../services/notification.service';
 import {
@@ -24,7 +25,9 @@ export class NotificationController {
   @Get('user/:userId')
   async getUserNotifications(
     @Param('userId') userId: string,
-    @CurrentUser() user
+    @CurrentUser() user,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number
   ) {
     // Only allow users to access their own notifications unless they're an admin
     this.authService.ensureOwnerOrAdmin(
@@ -33,7 +36,11 @@ export class NotificationController {
       'You are not authorized to access notifications for this user'
     );
 
-    return this.notificationService.getUserNotifications(userId);
+    return this.notificationService.getUserNotifications(
+      userId,
+      page ? parseInt(String(page)) : 1,
+      limit ? parseInt(String(limit)) : 10
+    );
   }
 
   @Put(':id/read')

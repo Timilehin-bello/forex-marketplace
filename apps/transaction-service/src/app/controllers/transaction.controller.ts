@@ -5,7 +5,7 @@ import {
   Body,
   Param,
   UseGuards,
-  UnauthorizedException,
+  Query,
 } from '@nestjs/common';
 import { TransactionService } from '../services/transaction.service';
 import { CreateOrderDto } from '../dtos/create-order.dto';
@@ -50,7 +50,12 @@ export class TransactionController {
   }
 
   @Get('user/:userId/orders')
-  async getUserOrders(@Param('userId') userId: string, @CurrentUser() user) {
+  async getUserOrders(
+    @Param('userId') userId: string,
+    @CurrentUser() user,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number
+  ) {
     // Only allow users to access their own orders unless they're an admin
     this.authService.ensureOwnerOrAdmin(
       userId,
@@ -58,13 +63,19 @@ export class TransactionController {
       'You are not authorized to access orders for this user'
     );
 
-    return this.transactionService.getUserOrders(userId);
+    return this.transactionService.getUserOrders(
+      userId,
+      page ? parseInt(String(page)) : 1,
+      limit ? parseInt(String(limit)) : 10
+    );
   }
 
   @Get('orders/:orderId/transactions')
   async getOrderTransactions(
     @Param('orderId') orderId: string,
-    @CurrentUser() user
+    @CurrentUser() user,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number
   ) {
     // First verify the order belongs to the current user
     const order = await this.transactionService.getOrderById(orderId);
@@ -77,6 +88,10 @@ export class TransactionController {
       );
     }
 
-    return this.transactionService.getOrderTransactions(orderId);
+    return this.transactionService.getOrderTransactions(
+      orderId,
+      page ? parseInt(String(page)) : 1,
+      limit ? parseInt(String(limit)) : 10
+    );
   }
 }

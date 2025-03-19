@@ -72,10 +72,10 @@ export class RateGrpcService {
     this.logger.log('gRPC GetAllRates called');
     this.loggerService.log('gRPC GetAllRates called');
     try {
-      const rates = await this.rateService.getAllRates();
+      const paginatedRates = await this.rateService.getAllRates();
 
       const response: AllRatesResponse = {
-        rates: rates.map((rate) => ({
+        rates: paginatedRates.items.map((rate) => ({
           baseCurrency: rate.baseCurrency,
           targetCurrency: rate.targetCurrency,
           rate: rate.rate,

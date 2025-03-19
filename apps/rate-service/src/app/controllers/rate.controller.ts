@@ -4,9 +4,11 @@ import {
   Param,
   HttpStatus,
   HttpException,
+  Query,
 } from '@nestjs/common';
 import { RateService } from '../services/rate.service';
 import { ApiResponse, successResponse } from '@forex-marketplace/shared-utils';
+import { PaginatedResult } from '@forex-marketplace/shared-types';
 import { ForexRate } from '../entities/rate.entity';
 
 @Controller('rates')
@@ -27,8 +29,14 @@ export class RateController {
   }
 
   @Get()
-  async getAllRates(): Promise<ApiResponse<ForexRate[]>> {
-    const rates = await this.rateService.getAllRates();
+  async getAllRates(
+    @Query('page') page?: number,
+    @Query('limit') limit?: number
+  ): Promise<ApiResponse<PaginatedResult<ForexRate>>> {
+    const rates = await this.rateService.getAllRates(
+      page ? parseInt(String(page)) : 1,
+      limit ? parseInt(String(limit)) : 10
+    );
     return successResponse(rates);
   }
 }

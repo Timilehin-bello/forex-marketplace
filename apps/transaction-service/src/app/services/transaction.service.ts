@@ -12,7 +12,11 @@ import { Order } from '../entities/order.entity';
 import { Transaction } from '../entities/transaction.entity';
 import { CreateOrderDto } from '../dtos/create-order.dto';
 import { LoggerService } from '@forex-marketplace/shared-utils';
-import { OrderStatus } from '@forex-marketplace/shared-types';
+import {
+  OrderStatus,
+  PaginatedResult,
+  PaginationHelper,
+} from '@forex-marketplace/shared-types';
 import {
   NotificationPattern,
   TransactionNotificationEvent,
@@ -173,18 +177,34 @@ export class TransactionService implements OnModuleInit {
     return order;
   }
 
-  async getUserOrders(userId: string): Promise<Order[]> {
-    return this.orderRepository.find({
+  async getUserOrders(
+    userId: string,
+    page = 1,
+    limit = 10
+  ): Promise<PaginatedResult<Order>> {
+    const [items, total] = await this.orderRepository.findAndCount({
       where: { userId },
+      skip: (page - 1) * limit,
+      take: limit,
       order: { createdAt: 'DESC' },
     });
+
+    return PaginationHelper.paginate(items, total, page, limit);
   }
 
-  async getOrderTransactions(orderId: string): Promise<Transaction[]> {
-    return this.transactionRepository.find({
+  async getOrderTransactions(
+    orderId: string,
+    page = 1,
+    limit = 10
+  ): Promise<PaginatedResult<Transaction>> {
+    const [items, total] = await this.transactionRepository.findAndCount({
       where: { orderId },
-      relations: ['order'],
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { createdAt: 'DESC' },
     });
+
+    return PaginationHelper.paginate(items, total, page, limit);
   }
 
   private async processOrder(orderId: string): Promise<void> {

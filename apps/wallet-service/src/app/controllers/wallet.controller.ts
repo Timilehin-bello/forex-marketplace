@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Param, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  UseGuards,
+  Query,
+} from '@nestjs/common';
 import { WalletService } from '../services/wallet.service';
 import { CreateWalletDto } from '../dtos/create-wallet.dto';
 import { WalletTransactionDto } from '../dtos/transaction.dto';
@@ -46,7 +54,9 @@ export class WalletController {
   @Get('user/:userId')
   async getWalletsByUserId(
     @Param('userId') userId: string,
-    @CurrentUser() user
+    @CurrentUser() user,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number
   ) {
     // Only allow users to access their own wallets unless they're an admin
     this.authService.ensureOwnerOrAdmin(
@@ -55,7 +65,11 @@ export class WalletController {
       'You are not authorized to access wallets for this user'
     );
 
-    return this.walletService.getWalletsByUserId(userId);
+    return this.walletService.getWalletsByUserId(
+      userId,
+      page ? parseInt(String(page)) : 1,
+      limit ? parseInt(String(limit)) : 10
+    );
   }
 
   @Get('user/:userId/currency/:currency')
@@ -107,7 +121,9 @@ export class WalletController {
   @Get(':walletId/transactions')
   async getTransactionsByWalletId(
     @Param('walletId') walletId: string,
-    @CurrentUser() user
+    @CurrentUser() user,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number
   ) {
     // First verify the wallet belongs to the current user
     const wallet = await this.walletService.getWalletById(walletId);
@@ -120,6 +136,10 @@ export class WalletController {
       );
     }
 
-    return this.walletService.getTransactionsByWalletId(walletId);
+    return this.walletService.getTransactionsByWalletId(
+      walletId,
+      page ? parseInt(String(page)) : 1,
+      limit ? parseInt(String(limit)) : 10
+    );
   }
 }

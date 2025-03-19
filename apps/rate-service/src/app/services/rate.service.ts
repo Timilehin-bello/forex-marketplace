@@ -7,6 +7,10 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { catchError, firstValueFrom } from 'rxjs';
 import { AxiosError } from 'axios';
 import { LoggerService } from '@forex-marketplace/shared-utils';
+import {
+  PaginatedResult,
+  PaginationHelper,
+} from '@forex-marketplace/shared-types';
 
 @Injectable()
 export class RateService implements OnModuleInit {
@@ -151,7 +155,16 @@ export class RateService implements OnModuleInit {
     return rate;
   }
 
-  async getAllRates(): Promise<ForexRate[]> {
-    return this.rateRepository.find();
+  async getAllRates(page = 1, limit = 10): Promise<PaginatedResult<ForexRate>> {
+    const [items, total] = await this.rateRepository.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+      order: {
+        baseCurrency: 'ASC',
+        targetCurrency: 'ASC',
+      },
+    });
+
+    return PaginationHelper.paginate(items, total, page, limit);
   }
 }
