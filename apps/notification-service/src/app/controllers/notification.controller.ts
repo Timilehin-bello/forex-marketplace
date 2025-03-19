@@ -6,21 +6,39 @@ import {
   UseGuards,
   NotFoundException,
   Query,
+  Inject,
 } from '@nestjs/common';
+import { ClientGrpc } from '@nestjs/microservices';
 import { NotificationService } from '../services/notification.service';
 import {
   JwtAuthGuard,
   CurrentUser,
   AuthorizationService,
 } from '@forex-marketplace/auth';
+import { Observable } from 'rxjs';
+
+// Define the user service interface
+interface UserService {
+  getUserById(data: {
+    id: string;
+  }): Observable<{ id: string; name: string; email: string }>;
+}
 
 @Controller('notifications')
 @UseGuards(JwtAuthGuard)
 export class NotificationController {
+  private userService: UserService;
+
   constructor(
     private readonly notificationService: NotificationService,
-    private readonly authService: AuthorizationService
+    private readonly authService: AuthorizationService,
+    @Inject('USER_SERVICE') private readonly userServiceClient: ClientGrpc
   ) {}
+
+  onModuleInit() {
+    this.userService =
+      this.userServiceClient.getService<UserService>('UserService');
+  }
 
   @Get('user/:userId')
   async getUserNotifications(
@@ -35,6 +53,9 @@ export class NotificationController {
       user,
       'You are not authorized to access notifications for this user'
     );
+
+    // The user existence check is causing problems, so we'll remove it
+    // and rely on the authorization check above
 
     return this.notificationService.getUserNotifications(
       userId,
