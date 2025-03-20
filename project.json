@@ -1,0 +1,19 @@
+{
+  "name": "@forex-marketplace/source",
+  "$schema": "./node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "./",
+  "projectType": "application",
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": [
+          "*.js",
+          "*.json"
+        ]
+      }
+    }
+  },
+  "tags": []
+} 

@@ -125,13 +125,13 @@ export class TestUtils {
 
   static async simulateConcurrentOperation(
     operation: () => Promise<any>,
-    numberOfConcurrentCalls: number = 5
+    numberOfConcurrentCalls = 5
   ): Promise<any[]> {
     const operations = Array(numberOfConcurrentCalls).fill(operation);
     return Promise.all(operations.map(op => op()));
   }
 
-  static async simulateTimeout(operation: () => Promise<any>, timeoutMs: number = 1000): Promise<any> {
+  static async simulateTimeout(operation: () => Promise<any>, timeoutMs = 1000): Promise<any> {
     const timeoutPromise = new Promise((_, reject) => {
       setTimeout(() => reject(new Error('Operation timed out')), timeoutMs);
     });

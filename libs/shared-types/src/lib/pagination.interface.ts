@@ -15,8 +15,8 @@ export class PaginationHelper {
   static paginate<T>(
     items: T[],
     count: number,
-    page: number = 1,
-    limit: number = 10
+    page = 1,
+    limit = 10
   ): PaginatedResult<T> {
     const totalPages = Math.ceil(count / limit);
 
