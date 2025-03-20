@@ -209,6 +209,7 @@ export class WalletService {
       await this.cacheService.delete(`wallet:${walletId}`);
       await this.cacheService.delete(`wallet:${wallet.userId}:${wallet.currency}`);
       await this.cacheService.invalidatePattern(`user_wallets:${wallet.userId}:*`);
+      await this.cacheService.invalidatePattern(`wallet_transactions:${walletId}:*`);
 
       // Send notification
       this.notificationClient.emit(
