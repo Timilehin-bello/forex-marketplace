@@ -179,12 +179,17 @@ export class TransactionService implements OnModuleInit {
   }
 
   async getOrderById(id: string): Promise<Order> {
-    const order = await this.orderRepository.findOne({ where: { id } });
-    if (!order) {
-      this.logger.error(`Order with id ${id} not found`);
-      throw new NotFoundException('Order not found');
+    try {
+      const order = await this.orderRepository.findOne({ where: { id } });
+      if (!order) {
+        this.logger.error(`Order with id ${id} not found`);
+        throw new NotFoundException('Order not found');
+      }
+      return order;
+    } catch (error) {
+      this.logger.error(`Error getting order ${id}: ${error.message}`, error.stack);
+      throw error;
     }
-    return order;
   }
 
   async getUserOrders(

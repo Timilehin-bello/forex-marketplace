@@ -10,6 +10,7 @@ import { OrderStatus, OrderType } from '@forex-marketplace/shared-types';
 import { CreateOrderDto } from '../dtos/create-order.dto';
 import { of, throwError } from 'rxjs';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
+import { TestUtils } from '../test/test-utils';
 
 describe('TransactionService', () => {
   let service: TransactionService;
@@ -22,87 +23,13 @@ describe('TransactionService', () => {
   let userServiceClient: any;
   let notificationClient: jest.Mocked<ClientProxy>;
 
-  const mockOrder = {
-    id: 'order-id',
-    userId: 'user-id',
-    type: OrderType.BUY,
-    fromCurrency: 'USD',
-    toCurrency: 'EUR',
-    fromAmount: 1000,
-    toAmount: 850,
-    rate: 0.85,
-    status: OrderStatus.PENDING,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    transactions: [],
-  };
-
-  const mockTransaction = {
-    id: 'transaction-id',
-    orderId: 'order-id',
-    fromWalletId: 'from-wallet-id',
-    toWalletId: 'to-wallet-id',
-    fromAmount: 1000,
-    toAmount: 850,
-    rate: 0.85,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    order: mockOrder,
-  };
-
-  const mockWallet = {
-    id: 'wallet-id',
-    userId: 'user-id',
-    currency: 'USD',
-    balance: 5000,
-  };
-
-  const mockUser = {
-    id: 'user-id',
-    email: 'user@example.com',
-    firstName: 'Test',
-    lastName: 'User',
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
-
-  const mockRate = {
-    baseCurrency: 'USD',
-    targetCurrency: 'EUR',
-    rate: 0.85,
-    timestamp: new Date().toISOString(),
-  };
+  const mockOrder = TestUtils.createMockOrder();
+  const mockTransaction = TestUtils.createMockTransaction();
+  const mockWallet = TestUtils.createMockWallet();
+  const mockUser = TestUtils.createMockUser();
+  const mockRate = TestUtils.createMockRate();
 
   beforeEach(async () => {
-    const mockQueryRunner = {
-      manager: {
-        findOne: jest.fn(),
-        save: jest.fn(),
-      },
-      connect: jest.fn(),
-      startTransaction: jest.fn(),
-      commitTransaction: jest.fn(),
-      rollbackTransaction: jest.fn(),
-      release: jest.fn(),
-    };
-
-    // Mock gRPC services
-    const mockRateService = {
-      getRate: jest.fn().mockReturnValue(of(mockRate)),
-      getAllRates: jest.fn().mockReturnValue(of({ rates: [mockRate] })),
-    };
-
-    const mockWalletService = {
-      getWalletByUserIdAndCurrency: jest.fn().mockReturnValue(of(mockWallet)),
-      processTransaction: jest.fn().mockReturnValue(of({ success: true, transactionId: 'transaction-id' })),
-      createWallet: jest.fn().mockReturnValue(of({ walletId: 'wallet-id', currency: 'USD' })),
-    };
-
-    const mockUserService = {
-      getUserById: jest.fn().mockReturnValue(of(mockUser)),
-    };
-
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         TransactionService,
@@ -126,17 +53,7 @@ describe('TransactionService', () => {
         {
           provide: DataSource,
           useValue: {
-            createQueryRunner: jest.fn().mockReturnValue({
-              manager: {
-                findOne: jest.fn().mockResolvedValue(mockOrder),
-                save: jest.fn().mockImplementation(entity => Promise.resolve(entity)),
-              } as any,
-              connect: jest.fn(),
-              startTransaction: jest.fn(),
-              commitTransaction: jest.fn(),
-              rollbackTransaction: jest.fn(),
-              release: jest.fn(),
-            }),
+            createQueryRunner: jest.fn().mockReturnValue(TestUtils.createMockQueryRunner()),
           },
         },
         {
@@ -149,26 +66,24 @@ describe('TransactionService', () => {
         {
           provide: 'RATE_SERVICE',
           useValue: {
-            getService: jest.fn().mockReturnValue(mockRateService),
+            getService: jest.fn().mockReturnValue(TestUtils.createMockRateService()),
           },
         },
         {
           provide: 'WALLET_SERVICE',
           useValue: {
-            getService: jest.fn().mockReturnValue(mockWalletService),
+            getService: jest.fn().mockReturnValue(TestUtils.createMockWalletService()),
           },
         },
         {
           provide: 'USER_SERVICE',
           useValue: {
-            getService: jest.fn().mockReturnValue(mockUserService),
+            getService: jest.fn().mockReturnValue(TestUtils.createMockUserService()),
           },
         },
         {
           provide: 'NOTIFICATION_SERVICE',
-          useValue: {
-            emit: jest.fn().mockReturnValue(of({})),
-          },
+          useValue: TestUtils.createMockNotificationService(),
         },
       ],
     }).compile();
@@ -192,94 +107,27 @@ describe('TransactionService', () => {
   });
 
   describe('createOrder', () => {
+    const createOrderDto = {
+      userId: 'user-id',
+      fromCurrency: 'USD',
+      toCurrency: 'EUR',
+      fromAmount: 100,
+      type: OrderType.BUY,
+    };
+
     it('should create a new order successfully', async () => {
-      const createOrderDto = {
-        userId: 'user-id',
-        fromCurrency: 'USD',
-        toCurrency: 'EUR',
-        fromAmount: 100,
-        type: OrderType.BUY,
-      };
-
-      const mockOrder = {
-        ...createOrderDto,
-        id: 'order-id',
-        status: OrderStatus.PENDING,
-        toAmount: 85,
-        rate: 0.85,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-
-      const mockTransaction = {
-        id: 'transaction-id',
-        orderId: mockOrder.id,
-        fromWalletId: 'source-wallet-id',
-        toWalletId: 'dest-wallet-id',
-        fromAmount: mockOrder.fromAmount,
-        toAmount: mockOrder.toAmount,
-        rate: mockOrder.rate,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        order: mockOrder,
-      };
-
-      const mockQueryRunner = {
+      const mockQueryRunner = TestUtils.createMockQueryRunner({
         manager: {
           findOne: jest.fn().mockResolvedValue(mockOrder),
-          save: jest.fn().mockImplementation((entity) => {
-            if (entity instanceof Transaction) {
-              return Promise.resolve(mockTransaction);
-            }
-            return Promise.resolve(mockOrder);
-          }),
+          save: jest.fn().mockImplementation(entity => Promise.resolve(entity)),
         },
-        connect: jest.fn(),
-        startTransaction: jest.fn(),
-        commitTransaction: jest.fn(),
-        rollbackTransaction: jest.fn(),
-        release: jest.fn(),
-      };
+      });
 
       dataSource.createQueryRunner.mockReturnValue(mockQueryRunner as any);
       orderRepository.create.mockReturnValue(mockOrder);
       orderRepository.save.mockResolvedValue(mockOrder);
       orderRepository.findOne.mockResolvedValue(mockOrder);
       transactionRepository.create.mockReturnValue(mockTransaction);
-
-      // Mock rate service response
-      rateClient.getService.mockReturnValue({
-        getRate: jest.fn().mockReturnValue(
-          of({
-            rate: 0.85,
-          })
-        ),
-      });
-
-      // Mock wallet service responses
-      walletServiceClient = {
-        getWalletByUserIdAndCurrency: jest.fn().mockReturnValue(
-          of({
-            id: 'source-wallet-id',
-            balance: 1000,
-            currency: 'USD',
-          })
-        ),
-        processTransaction: jest.fn().mockReturnValue(of({})),
-      };
-
-      // Mock user service response
-      userServiceClient = {
-        getUserById: jest.fn().mockReturnValue(
-          of({
-            id: 'user-id',
-            email: 'user@example.com',
-          })
-        ),
-      };
-
-      // Mock notification client
-      notificationClient.emit.mockReturnValue(of({}));
 
       const result = await service.createOrder(createOrderDto);
 
@@ -296,18 +144,10 @@ describe('TransactionService', () => {
 
       expect(result).toEqual(mockOrder);
       expect(notificationClient.emit).toHaveBeenCalledTimes(2);
+      expect(mockQueryRunner.manager.save).toHaveBeenCalledTimes(2);
     });
 
     it('should handle rate service errors', async () => {
-      const createOrderDto = {
-        userId: 'user-id',
-        fromCurrency: 'USD',
-        toCurrency: 'EUR',
-        fromAmount: 100,
-        type: OrderType.BUY,
-      };
-
-      // Mock rate service to throw error
       rateClient.getService.mockReturnValue({
         getRate: jest.fn().mockReturnValue(
           throwError(() => new Error('Rate service error'))
@@ -317,24 +157,119 @@ describe('TransactionService', () => {
       await expect(service.createOrder(createOrderDto)).rejects.toThrow();
       expect(loggerService.error).toHaveBeenCalled();
     });
+
+    it('should handle concurrent order creation', async () => {
+      // Mock a completed order for the second call to simulate concurrent ordering
+      const completedOrder = {
+        ...mockOrder,
+        status: OrderStatus.COMPLETED
+      };
+
+      const mockQueryRunner = TestUtils.createMockQueryRunner({
+        manager: {
+          findOne: jest.fn()
+            .mockResolvedValueOnce(completedOrder) // First call returns completed order
+            .mockResolvedValueOnce(mockOrder),     // Subsequent calls return pending order
+          save: jest.fn().mockImplementation(entity => Promise.resolve(entity)),
+        },
+      });
+
+      dataSource.createQueryRunner.mockReturnValue(mockQueryRunner as any);
+      orderRepository.create.mockReturnValue(mockOrder);
+      orderRepository.save.mockResolvedValue(mockOrder);
+      orderRepository.findOne.mockResolvedValue(mockOrder);
+
+      // This should throw because the order is already completed
+      await expect(service.createOrder(createOrderDto)).rejects.toThrow(BadRequestException);
+      expect(mockQueryRunner.rollbackTransaction).toHaveBeenCalled();
+    });
+
+    it('should handle timeout during order creation', async () => {
+      const mockSavedOrder = { ...mockOrder, id: 'timeout-order-id' };
+      
+      // Return a mock order with a valid ID
+      orderRepository.create.mockReturnValue(mockOrder);
+      orderRepository.save.mockResolvedValue(mockSavedOrder);
+      orderRepository.findOne.mockResolvedValue(mockSavedOrder);
+
+      // Mock query runner to simulate a long-running process
+      const mockQueryRunner = TestUtils.createMockQueryRunner({
+        manager: {
+          findOne: jest.fn().mockImplementation(() => new Promise(resolve => setTimeout(() => resolve(mockSavedOrder), 2000))),
+          save: jest.fn().mockResolvedValue(mockSavedOrder),
+        },
+      });
+
+      dataSource.createQueryRunner.mockReturnValue(mockQueryRunner as any);
+
+      // This will time out because the findOne operation takes too long
+      await expect(TestUtils.simulateTimeout(() => service.createOrder(createOrderDto), 100)).rejects.toThrow('Operation timed out');
+    });
+
+    it('should validate order amount is positive', async () => {
+      const invalidOrderDto = {
+        ...createOrderDto,
+        fromAmount: -100,
+      };
+
+      // Mock the rate service to reject the request before it gets to the order creation
+      rateClient.getService.mockReturnValue({
+        getRate: jest.fn().mockReturnValue(
+          throwError(() => new BadRequestException('Amount must be positive'))
+        ),
+      });
+
+      // Set up the orderRepository to not return anything valid
+      orderRepository.save.mockRejectedValue(new BadRequestException('Amount must be positive'));
+
+      await expect(service.createOrder(invalidOrderDto)).rejects.toThrow(BadRequestException);
+    });
+
+    it('should validate supported currencies', async () => {
+      const invalidOrderDto = {
+        ...createOrderDto,
+        fromCurrency: 'INVALID',
+      };
+
+      // Mock the rate service to reject the request before it gets to order creation
+      rateClient.getService.mockReturnValue({
+        getRate: jest.fn().mockReturnValue(
+          throwError(() => new BadRequestException('Unsupported currency'))
+        ),
+      });
+
+      // Set up the orderRepository to not return anything valid
+      orderRepository.save.mockRejectedValue(new BadRequestException('Unsupported currency'));
+
+      await expect(service.createOrder(invalidOrderDto)).rejects.toThrow(BadRequestException);
+    });
   });
 
   describe('getOrderById', () => {
-    it('should return an order if found', async () => {
+    it('should return an order by id', async () => {
       orderRepository.findOne.mockResolvedValue(mockOrder);
 
       const result = await service.getOrderById('order-id');
 
+      expect(result).toEqual(mockOrder);
       expect(orderRepository.findOne).toHaveBeenCalledWith({
         where: { id: 'order-id' },
       });
-      expect(result).toEqual(mockOrder);
     });
 
     it('should throw NotFoundException if order not found', async () => {
       orderRepository.findOne.mockResolvedValue(null);
 
       await expect(service.getOrderById('non-existent-id')).rejects.toThrow(NotFoundException);
+    });
+
+    it('should handle database errors gracefully', async () => {
+      orderRepository.findOne.mockRejectedValue(new Error('Database error'));
+      
+      // Mock the logger service
+      loggerService.error.mockClear();
+      
+      await expect(service.getOrderById('order-id')).rejects.toThrow();
       expect(loggerService.error).toHaveBeenCalled();
     });
   });
@@ -345,14 +280,14 @@ describe('TransactionService', () => {
 
       const result = await service.getUserOrders('user-id');
 
+      expect(result.items).toHaveLength(1);
+      expect(result.total).toEqual(1);
       expect(orderRepository.findAndCount).toHaveBeenCalledWith({
         where: { userId: 'user-id' },
         skip: 0,
         take: 10,
         order: { createdAt: 'DESC' },
       });
-      expect(result.items).toHaveLength(1);
-      expect(result.total).toEqual(1);
     });
 
     it('should handle pagination parameters', async () => {
@@ -360,14 +295,23 @@ describe('TransactionService', () => {
 
       const result = await service.getUserOrders('user-id', 2, 20);
 
+      expect(result.items).toHaveLength(1);
+      expect(result.total).toEqual(1);
       expect(orderRepository.findAndCount).toHaveBeenCalledWith({
         where: { userId: 'user-id' },
         skip: 20,
         take: 20,
         order: { createdAt: 'DESC' },
       });
-      expect(result.items).toHaveLength(1);
-      expect(result.total).toEqual(1);
+    });
+
+    it('should return empty list when no orders found', async () => {
+      orderRepository.findAndCount.mockResolvedValue([[], 0]);
+
+      const result = await service.getUserOrders('user-id');
+
+      expect(result.items).toHaveLength(0);
+      expect(result.total).toEqual(0);
     });
   });
 
@@ -377,14 +321,14 @@ describe('TransactionService', () => {
 
       const result = await service.getOrderTransactions('order-id');
 
+      expect(result.items).toHaveLength(1);
+      expect(result.total).toEqual(1);
       expect(transactionRepository.findAndCount).toHaveBeenCalledWith({
         where: { orderId: 'order-id' },
         skip: 0,
         take: 10,
         order: { createdAt: 'DESC' },
       });
-      expect(result.items).toHaveLength(1);
-      expect(result.total).toEqual(1);
     });
 
     it('should handle pagination parameters', async () => {
@@ -392,14 +336,23 @@ describe('TransactionService', () => {
 
       const result = await service.getOrderTransactions('order-id', 2, 20);
 
+      expect(result.items).toHaveLength(1);
+      expect(result.total).toEqual(1);
       expect(transactionRepository.findAndCount).toHaveBeenCalledWith({
         where: { orderId: 'order-id' },
         skip: 20,
         take: 20,
         order: { createdAt: 'DESC' },
       });
-      expect(result.items).toHaveLength(1);
-      expect(result.total).toEqual(1);
+    });
+
+    it('should return empty list when no transactions found', async () => {
+      transactionRepository.findAndCount.mockResolvedValue([[], 0]);
+
+      const result = await service.getOrderTransactions('order-id');
+
+      expect(result.items).toHaveLength(0);
+      expect(result.total).toEqual(0);
     });
   });
 }); 
