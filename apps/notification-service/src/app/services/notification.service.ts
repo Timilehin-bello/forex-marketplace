@@ -25,8 +25,16 @@ export class NotificationService {
   ) {}
 
   async createNotification(data: Partial<Notification>): Promise<Notification> {
-    const notification = this.notificationRepository.create(data);
-    return this.notificationRepository.save(notification);
+    try {
+      const notification = this.notificationRepository.create(data);
+      return this.notificationRepository.save(notification);
+    } catch (error) {
+      this.logger.error(
+        `Error creating notification: ${error.message}`,
+        error.stack
+      );
+      throw error;
+    }
   }
 
   async getNotificationById(id: string): Promise<Notification> {

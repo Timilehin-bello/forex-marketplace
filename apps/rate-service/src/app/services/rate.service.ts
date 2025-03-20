@@ -169,4 +169,27 @@ export class RateService implements OnModuleInit {
 
     return PaginationHelper.paginate(items, total, page, limit);
   }
+
+  async convertCurrency(
+    fromCurrency: string,
+    toCurrency: string,
+    amount: number
+  ): Promise<{
+    fromCurrency: string;
+    toCurrency: string;
+    fromAmount: number;
+    toAmount: number;
+    rate: number;
+  }> {
+    const rate = await this.getRate(fromCurrency, toCurrency);
+    const toAmount = amount * rate.rate;
+
+    return {
+      fromCurrency,
+      toCurrency,
+      fromAmount: amount,
+      toAmount,
+      rate: rate.rate,
+    };
+  }
 }
