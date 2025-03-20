@@ -11,7 +11,7 @@ import { firstValueFrom, Observable } from 'rxjs'; // Add Observable import
 import { Order } from '../entities/order.entity';
 import { Transaction } from '../entities/transaction.entity';
 import { CreateOrderDto } from '../dtos/create-order.dto';
-import { LoggerService } from '@forex-marketplace/shared-utils';
+import { LoggerService, CacheService } from '@forex-marketplace/shared-utils';
 import {
   OrderStatus,
   PaginatedResult,
@@ -82,6 +82,8 @@ export class TransactionService implements OnModuleInit {
   private rateService: RateService;
   private walletServiceClient: WalletService;
   private userServiceClient: UserService;
+  private readonly ORDER_CACHE_TTL = 600; // 10 minutes
+  private readonly USER_ORDERS_CACHE_TTL = 300; // 5 minutes
 
   constructor(
     @InjectRepository(Order)
@@ -90,6 +92,7 @@ export class TransactionService implements OnModuleInit {
     private readonly transactionRepository: Repository<Transaction>,
     private readonly dataSource: DataSource,
     private readonly logger: LoggerService,
+    private readonly cacheService: CacheService,
     @Inject('RATE_SERVICE') private readonly rateClient: ClientGrpc,
     @Inject('WALLET_SERVICE') private readonly walletClient: ClientGrpc,
     @Inject('USER_SERVICE') private readonly userClient: ClientGrpc,
@@ -171,6 +174,9 @@ export class TransactionService implements OnModuleInit {
       // Process the order immediately
       await this.processOrder(savedOrder.id);
 
+      // Invalidate user orders cache
+      await this.cacheService.delete(`user_orders:${userId}`);
+      
       return this.getOrderById(savedOrder.id);
     } catch (error) {
       this.logger.error(`Error creating order: ${error.message}`, error.stack);
@@ -179,17 +185,25 @@ export class TransactionService implements OnModuleInit {
   }
 
   async getOrderById(id: string): Promise<Order> {
-    try {
-      const order = await this.orderRepository.findOne({ where: { id } });
-      if (!order) {
-        this.logger.error(`Order with id ${id} not found`);
-        throw new NotFoundException('Order not found');
-      }
-      return order;
-    } catch (error) {
-      this.logger.error(`Error getting order ${id}: ${error.message}`, error.stack);
-      throw error;
-    }
+    const cacheKey = `order:${id}`;
+    
+    return this.cacheService.getOrSet(
+      cacheKey,
+      async () => {
+        try {
+          const order = await this.orderRepository.findOne({ where: { id } });
+          if (!order) {
+            this.logger.error(`Order with id ${id} not found`);
+            throw new NotFoundException('Order not found');
+          }
+          return order;
+        } catch (error) {
+          this.logger.error(`Error getting order ${id}: ${error.message}`, error.stack);
+          throw error;
+        }
+      },
+      this.ORDER_CACHE_TTL
+    );
   }
 
   async getUserOrders(
@@ -197,14 +211,22 @@ export class TransactionService implements OnModuleInit {
     page = 1,
     limit = 10
   ): Promise<PaginatedResult<Order>> {
-    const [items, total] = await this.orderRepository.findAndCount({
-      where: { userId },
-      skip: (page - 1) * limit,
-      take: limit,
-      order: { createdAt: 'DESC' },
-    });
+    const cacheKey = `user_orders:${userId}:${page}:${limit}`;
+    
+    return this.cacheService.getOrSet(
+      cacheKey,
+      async () => {
+        const [items, total] = await this.orderRepository.findAndCount({
+          where: { userId },
+          skip: (page - 1) * limit,
+          take: limit,
+          order: { createdAt: 'DESC' },
+        });
 
-    return PaginationHelper.paginate(items, total, page, limit);
+        return PaginationHelper.paginate(items, total, page, limit);
+      },
+      this.USER_ORDERS_CACHE_TTL
+    );
   }
 
   async getOrderTransactions(
@@ -212,14 +234,22 @@ export class TransactionService implements OnModuleInit {
     page = 1,
     limit = 10
   ): Promise<PaginatedResult<Transaction>> {
-    const [items, total] = await this.transactionRepository.findAndCount({
-      where: { orderId },
-      skip: (page - 1) * limit,
-      take: limit,
-      order: { createdAt: 'DESC' },
-    });
+    const cacheKey = `order_transactions:${orderId}:${page}:${limit}`;
+    
+    return this.cacheService.getOrSet(
+      cacheKey,
+      async () => {
+        const [items, total] = await this.transactionRepository.findAndCount({
+          where: { orderId },
+          skip: (page - 1) * limit,
+          take: limit,
+          order: { createdAt: 'DESC' },
+        });
 
-    return PaginationHelper.paginate(items, total, page, limit);
+        return PaginationHelper.paginate(items, total, page, limit);
+      },
+      this.ORDER_CACHE_TTL
+    );
   }
 
   private async processOrder(orderId: string): Promise<void> {
@@ -388,6 +418,14 @@ export class TransactionService implements OnModuleInit {
           }
         )
       );
+
+      // After completing order processing, invalidate order cache
+      await this.cacheService.delete(`order:${orderId}`);
+      
+      // Also invalidate user orders cache
+      if (order && order.userId) {
+        await this.cacheService.invalidatePattern(`user_orders:${order.userId}:*`);
+      }
     } catch (error) {
       // Rollback in case of error
       await queryRunner.rollbackTransaction();

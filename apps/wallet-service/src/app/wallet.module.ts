@@ -11,7 +11,9 @@ import { SharedUtilsModule } from '@forex-marketplace/shared-utils';
 import { MessageQueueModule } from '@forex-marketplace/message-queue';
 import { JwtStrategy, AuthModule } from '@forex-marketplace/auth';
 import { join } from 'path';
+import { Global } from '@nestjs/common';
 
+@Global()
 @Module({
   imports: [
     DatabaseModule,

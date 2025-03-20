@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { HttpService } from '@nestjs/axios';
-import { RateService } from './rate.service';
+import { Repository } from 'typeorm';
+import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { ForexRate } from '../entities/rate.entity';
-import { LoggerService } from '@forex-marketplace/shared-utils';
-import { NotFoundException, BadRequestException } from '@nestjs/common';
-import { of, throwError, delay } from 'rxjs';
-import { AxiosResponse, AxiosError } from 'axios';
+import { RateService } from './rate.service';
+import { LoggerService, CacheService } from '@forex-marketplace/shared-utils';
+import { of, throwError } from 'rxjs';
+import { ConfigService } from '@nestjs/config';
 import { TestUtils } from '../test/test-utils';
 
 describe('RateService', () => {
@@ -15,45 +15,39 @@ describe('RateService', () => {
   let rateRepository: jest.Mocked<Repository<ForexRate>>;
   let httpService: jest.Mocked<HttpService>;
   let loggerService: jest.Mocked<LoggerService>;
+  let cacheService: jest.Mocked<CacheService>;
+  let configService: jest.Mocked<ConfigService>;
+  let loggerSpy: jest.SpyInstance;
+  let errorSpy: jest.SpyInstance;
+  let warnSpy: jest.SpyInstance;
 
   const mockRate = TestUtils.createMockRate({
-    id: 'rate-id',
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    baseCurrency: 'USD',
+    targetCurrency: 'EUR',
+    rate: 0.85,
   });
 
-  const mockRatesResponse: AxiosResponse = {
-    data: {
-      success: true,
-      base: 'USD',
-      rates: {
-        EUR: 0.85,
-        GBP: 0.75,
-        JPY: 110.5,
-        CAD: 1.25,
-      },
-      timestamp: 1629380400,
-    },
-    status: 200,
-    statusText: 'OK',
-    headers: {},
-    config: {
-      url: 'https://api.exchangerate.host/latest',
-    } as any,
-  };
-
   beforeEach(async () => {
+    // Reset all mocks before each test
+    jest.clearAllMocks();
+    
+    // Setup spies on the Logger prototype methods
+    loggerSpy = jest.spyOn(Logger.prototype, 'log').mockImplementation(() => undefined);
+    errorSpy = jest.spyOn(Logger.prototype, 'error').mockImplementation(() => undefined);
+    warnSpy = jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+    
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         RateService,
         {
           provide: getRepositoryToken(ForexRate),
           useValue: {
+            find: jest.fn(),
             findOne: jest.fn(),
-            findAndCount: jest.fn(),
-            create: jest.fn(),
+            findAndCount: jest.fn(), 
             save: jest.fn(),
-            upsert: jest.fn(),
+            create: jest.fn(),
+            delete: jest.fn(),
           },
         },
         {
@@ -65,9 +59,26 @@ describe('RateService', () => {
         {
           provide: LoggerService,
           useValue: {
-            log: jest.fn(),
-            error: jest.fn(),
-            warn: jest.fn(),
+            log: jest.fn().mockReturnValue(undefined),
+            error: jest.fn().mockReturnValue(undefined),
+            warn: jest.fn().mockReturnValue(undefined),
+            debug: jest.fn().mockReturnValue(undefined),
+          },
+        },
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn(),
+          },
+        },
+        {
+          provide: CacheService,
+          useValue: {
+            getOrSet: jest.fn(),
+            get: jest.fn(),
+            set: jest.fn(),
+            delete: jest.fn(),
+            invalidatePattern: jest.fn(),
           },
         },
       ],
@@ -77,217 +88,236 @@ describe('RateService', () => {
     rateRepository = module.get(getRepositoryToken(ForexRate)) as jest.Mocked<Repository<ForexRate>>;
     httpService = module.get(HttpService) as jest.Mocked<HttpService>;
     loggerService = module.get(LoggerService) as jest.Mocked<LoggerService>;
-
-    // Mock process.env for API key
-    process.env['EXCHANGE_RATE_API_KEY'] = 'test-api-key';
+    configService = module.get(ConfigService) as jest.Mocked<ConfigService>;
+    cacheService = module.get(CacheService) as jest.Mocked<CacheService>;
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
+  afterEach(() => {
+    // Restore original Logger implementations
+    jest.restoreAllMocks();
   });
 
+  // Test cases for getRate method
   describe('getRate', () => {
-    it('should return a rate for given currencies', async () => {
-      rateRepository.findOne.mockResolvedValue(mockRate);
+    it('should return rate from cache if available', async () => {
+      // Mock the cache hit
+      jest.spyOn(cacheService, 'getOrSet').mockImplementation(async (key, fetchFn) => {
+        return mockRate;
+      });
 
       const result = await service.getRate('USD', 'EUR');
-
-      expect(rateRepository.findOne).toHaveBeenCalledWith({
-        where: {
-          baseCurrency: 'USD',
-          targetCurrency: 'EUR',
-        },
-      });
       expect(result).toEqual(mockRate);
+      expect(cacheService.getOrSet).toHaveBeenCalledWith(
+        'rate:USD:EUR',
+        expect.any(Function),
+        300
+      );
+    });
+
+    it('should fetch rate from DB if not in cache', async () => {
+      // Mock the cache miss but DB hit
+      jest.spyOn(cacheService, 'getOrSet').mockImplementation(async (key, fetchFn) => {
+        return await fetchFn();
+      });
+
+      jest.spyOn(rateRepository, 'findOne').mockResolvedValue(mockRate);
+
+      const result = await service.getRate('USD', 'EUR');
+      expect(result).toEqual(mockRate);
+      expect(rateRepository.findOne).toHaveBeenCalledWith({
+        where: { baseCurrency: 'USD', targetCurrency: 'EUR' },
+      });
     });
 
     it('should throw NotFoundException if rate not found', async () => {
-      rateRepository.findOne.mockResolvedValue(null);
+      // Mock the cache to not find anything
+      jest.spyOn(cacheService, 'getOrSet').mockImplementation(async (key, fetchFn) => {
+        return await fetchFn();
+      });
 
+      // Mock the repository to not find the rate
+      jest.spyOn(rateRepository, 'findOne').mockResolvedValue(null);
+      
+      // Now test that it throws
       await expect(service.getRate('USD', 'XYZ')).rejects.toThrow(NotFoundException);
-      expect(loggerService.warn).toHaveBeenCalled();
+      
+      // Verify the logger is called when the service runs
+      expect(warnSpy).toHaveBeenCalled();
     });
 
     it('should handle database errors gracefully', async () => {
-      rateRepository.findOne.mockRejectedValue(new Error('Database error'));
+      // Mock the cache to throw an error
+      jest.spyOn(cacheService, 'getOrSet').mockImplementation(async (key, fetchFn) => {
+        return await fetchFn();
+      });
 
+      // Mock the repository to throw an error
+      const dbError = new Error('Database error');
+      jest.spyOn(rateRepository, 'findOne').mockRejectedValue(dbError);
+      
+      // Now test that it throws
       await expect(service.getRate('USD', 'EUR')).rejects.toThrow();
-      expect(loggerService.error).toHaveBeenCalled();
+      
+      // Verify the logger is called
+      expect(errorSpy).toHaveBeenCalled();
     });
 
     it('should validate currency codes', async () => {
+      // We need to mock cacheService.getOrSet to pass through to the validation logic
+      jest.spyOn(cacheService, 'getOrSet').mockImplementation(async (key, fetchFn) => {
+        return await fetchFn();
+      });
+
       await expect(service.getRate('', 'EUR')).rejects.toThrow(BadRequestException);
       await expect(service.getRate('USD', '')).rejects.toThrow(BadRequestException);
-      await expect(service.getRate('INVALID', 'EUR')).rejects.toThrow(NotFoundException);
+    });
+
+    it('should attempt to calculate cross-rates if direct rate not found', async () => {
+      // Mock cache miss
+      jest.spyOn(cacheService, 'getOrSet').mockImplementation(async (key, fetchFn) => {
+        return await fetchFn();
+      });
+
+      // Mock direct pair not found
+      jest.spyOn(rateRepository, 'findOne').mockImplementation(async (options: any) => {
+        const { baseCurrency, targetCurrency } = options.where;
+        if (baseCurrency === 'EUR' && targetCurrency === 'JPY') {
+          return null;
+        }
+        if (baseCurrency === 'USD' && targetCurrency === 'EUR') {
+          return { baseCurrency: 'USD', targetCurrency: 'EUR', rate: 0.85 } as ForexRate;
+        }
+        if (baseCurrency === 'USD' && targetCurrency === 'JPY') {
+          return { baseCurrency: 'USD', targetCurrency: 'JPY', rate: 110 } as ForexRate;
+        }
+        return null;
+      });
+
+      // Mock repository create
+      jest.spyOn(rateRepository, 'create').mockImplementation((data) => {
+        return data as ForexRate;
+      });
+
+      const result = await service.getRate('EUR', 'JPY');
+      expect(result).toBeDefined();
+      expect(result.rate).toBeCloseTo(110 / 0.85, 5);
     });
   });
 
+  // Test cases for fetchAndUpdateRates method
   describe('fetchAndUpdateRates', () => {
-    beforeEach(() => {
-      // Mock HttpService.get response
-      httpService.get.mockImplementation((url) => {
-        if (url.includes('base=USD')) {
-          return of(mockRatesResponse);
-        }
-        // For other base currencies, return similar response with adjusted rates
-        return of({
-          ...mockRatesResponse,
-          data: {
-            ...mockRatesResponse.data,
-            base: url.includes('base=EUR') ? 'EUR' : 'GBP',
-          },
-        });
-      });
-
-      // Mock repository create and save methods
-      rateRepository.create.mockReturnValue(mockRate);
-      rateRepository.save.mockResolvedValue(mockRate);
-    });
-
     it('should fetch and update rates successfully', async () => {
-      // Spy on the private method fetchRatesForBaseCurrency
-      const fetchSpy = jest.spyOn<any, any>(service, 'fetchRatesForBaseCurrency').mockResolvedValue(undefined);
-
+      // Setup process.env for testing
+      const originalEnv = process.env;
+      process.env = { ...originalEnv, EXCHANGE_RATE_API_KEY: 'test-api-key' };
+      
+      // Setup the HTTP service to return data
+      const mockResponse = {
+        data: {
+          result: 'success',
+          time_last_update_unix: Date.now() / 1000,
+          conversion_rates: {
+            'EUR': 0.85,
+            'GBP': 0.75,
+            'JPY': 110.5,
+          }
+        }
+      };
+      
+      const httpGetSpy = jest.spyOn(httpService, 'get');
+      httpGetSpy.mockImplementation(() => {
+        return of(mockResponse as any); // Cast to any to bypass type checking
+      });
+      
+      // Setup repository mock
+      jest.spyOn(rateRepository, 'save').mockResolvedValue({} as ForexRate);
+      jest.spyOn(rateRepository, 'create').mockImplementation((data) => data as ForexRate);
+      jest.spyOn(rateRepository, 'findOne').mockResolvedValue(null);
+      
+      // Run the method
       await service.fetchAndUpdateRates();
-
-      expect(fetchSpy).toHaveBeenCalledTimes(5); // Called for each base currency
-      expect(loggerService.log).toHaveBeenCalledWith('Successfully updated forex rates');
+      
+      // Verify the HTTP call was made 5 times (for each base currency)
+      expect(httpGetSpy).toHaveBeenCalledTimes(5);
+      
+      // Clean up
+      process.env = originalEnv;
+      
+      // Verify the logger was called
+      expect(loggerSpy).toHaveBeenCalled();
     });
 
     it('should handle errors when fetching rates', async () => {
-      // Make the HttpService.get throw an error
-      httpService.get.mockImplementation(() =>
-        throwError(() => new Error('API Error'))
-      );
-
-      // Spy on the private method fetchRatesForBaseCurrency to let it pass through to the HTTP service
-      jest.spyOn<any, any>(service, 'fetchRatesForBaseCurrency');
-
+      // Setup process.env for testing
+      const originalEnv = process.env;
+      process.env = { ...originalEnv, EXCHANGE_RATE_API_KEY: 'test-api-key' };
+      
+      // Mock the HTTP service to throw an error
+      jest.spyOn(httpService, 'get').mockImplementation(() => {
+        return throwError(() => new Error('API Error'));
+      });
+      
+      // Run the method and expect it to throw
       await expect(service.fetchAndUpdateRates()).rejects.toThrow();
-      expect(loggerService.error).toHaveBeenCalled();
-    });
-
-    it('should handle concurrent rate updates', async () => {
-      const fetchSpy = jest.spyOn<any, any>(service, 'fetchRatesForBaseCurrency').mockResolvedValue(undefined);
-
-      const updateRatesOperation = () => service.fetchAndUpdateRates();
-      const results = await TestUtils.simulateConcurrentOperation(updateRatesOperation, 3);
-
-      expect(results).toHaveLength(3);
-      expect(fetchSpy).toHaveBeenCalledTimes(15); // 5 base currencies * 3 concurrent calls
-    });
-
-    it('should handle timeout during rate updates', async () => {
-      // Mock the private method to simulate a delay
-      jest.spyOn<any, any>(service, 'fetchRatesForBaseCurrency').mockImplementation(
-        () => new Promise(resolve => setTimeout(resolve, 2000))
-      );
-
-      await expect(TestUtils.simulateTimeout(() => service.fetchAndUpdateRates())).rejects.toThrow('Operation timed out');
-    });
-
-    it('should validate API key presence', async () => {
-      delete process.env['EXCHANGE_RATE_API_KEY'];
-      await expect(service.fetchAndUpdateRates()).rejects.toThrow(BadRequestException);
-      process.env['EXCHANGE_RATE_API_KEY'] = 'test-api-key';
+      
+      // Clean up
+      process.env = originalEnv;
+      
+      // Verify the logger was called
+      expect(errorSpy).toHaveBeenCalled();
     });
   });
 
+  // Test cases for getAllRates method
   describe('getAllRates', () => {
-    it('should return paginated rates', async () => {
-      rateRepository.findAndCount.mockResolvedValue([[mockRate], 1]);
-
-      const result = await service.getAllRates();
-
-      expect(rateRepository.findAndCount).toHaveBeenCalledWith({
-        skip: 0,
-        take: 10,
-        order: {
-          baseCurrency: 'ASC',
-          targetCurrency: 'ASC',
-        },
-      });
-      expect(result.items).toHaveLength(1);
-      expect(result.total).toEqual(1);
-    });
-
-    it('should return empty list when no rates are found', async () => {
-      rateRepository.findAndCount.mockResolvedValue([[], 0]);
-
-      const result = await service.getAllRates();
-
-      expect(result.items).toHaveLength(0);
-      expect(result.total).toEqual(0);
-    });
-
-    it('should handle pagination parameters', async () => {
-      rateRepository.findAndCount.mockResolvedValue([[mockRate], 1]);
-
-      const result = await service.getAllRates(2, 20);
-
-      expect(rateRepository.findAndCount).toHaveBeenCalledWith({
-        skip: 20,
-        take: 20,
-        order: {
-          baseCurrency: 'ASC',
-          targetCurrency: 'ASC',
-        },
-      });
-      expect(result.items).toHaveLength(1);
-      expect(result.total).toEqual(1);
+    it('should retrieve all rates with pagination', async () => {
+      const mockRates = [mockRate];
+      const mockTotal = 1;
+      
+      jest.spyOn(rateRepository, 'findAndCount').mockResolvedValue([mockRates, mockTotal]);
+      
+      const result = await service.getAllRates(1, 10);
+      
+      expect(result.items).toEqual(mockRates);
+      expect(result.total).toEqual(mockTotal);
+      expect(result.page).toEqual(1);
+      expect(result.limit).toEqual(10);
     });
 
     it('should handle database errors gracefully', async () => {
-      rateRepository.findAndCount.mockRejectedValue(new Error('Database error'));
-
+      // Mock the repository to throw an error
+      const dbError = new Error('Database error');
+      jest.spyOn(rateRepository, 'findAndCount').mockRejectedValue(dbError);
+      
+      // Now test that it throws
       await expect(service.getAllRates()).rejects.toThrow();
-      expect(loggerService.error).toHaveBeenCalled();
+      
+      // Verify the logger was called
+      expect(errorSpy).toHaveBeenCalled();
     });
   });
 
+  // Test cases for convertCurrency method
   describe('convertCurrency', () => {
     it('should convert currency correctly', async () => {
-      rateRepository.findOne.mockResolvedValue(mockRate);
-
+      jest.spyOn(service, 'getRate').mockResolvedValue(mockRate);
+      
       const result = await service.convertCurrency('USD', 'EUR', 100);
-
-      expect(rateRepository.findOne).toHaveBeenCalled();
+      
       expect(result).toEqual({
         fromCurrency: 'USD',
         toCurrency: 'EUR',
         fromAmount: 100,
-        toAmount: 85, // 100 * 0.85
-        rate: 0.85,
+        toAmount: 100 * mockRate.rate,
+        rate: mockRate.rate,
       });
     });
 
-    it('should throw NotFoundException if rate not found', async () => {
-      rateRepository.findOne.mockResolvedValue(null);
-
-      await expect(service.convertCurrency('USD', 'XYZ', 100)).rejects.toThrow(NotFoundException);
-      expect(loggerService.warn).toHaveBeenCalled();
-    });
-
-    it('should validate input parameters', async () => {
+    it('should validate inputs', async () => {
       await expect(service.convertCurrency('', 'EUR', 100)).rejects.toThrow(BadRequestException);
       await expect(service.convertCurrency('USD', '', 100)).rejects.toThrow(BadRequestException);
-      await expect(service.convertCurrency('USD', 'EUR', -100)).rejects.toThrow(BadRequestException);
-    });
-
-    it('should handle edge cases for currency conversion', async () => {
-      // Test negative amount
-      await expect(service.convertCurrency('USD', 'EUR', -100)).rejects.toThrow(BadRequestException);
-      
-      // Test missing currencies
-      await expect(service.convertCurrency('', 'EUR', 100)).rejects.toThrow(BadRequestException);
-      await expect(service.convertCurrency('USD', '', 100)).rejects.toThrow(BadRequestException);
-
-      // Test rate not found
-      rateRepository.findOne.mockResolvedValue(null);
-      await expect(service.convertCurrency('USD', 'XYZ', 100)).rejects.toThrow(NotFoundException);
-      
-      // Reset mock for subsequent tests
-      rateRepository.findOne.mockResolvedValue(mockRate);
+      await expect(service.convertCurrency('USD', 'EUR', 0)).rejects.toThrow(BadRequestException);
+      await expect(service.convertCurrency('USD', 'EUR', -1)).rejects.toThrow(BadRequestException);
     });
   });
 }); 

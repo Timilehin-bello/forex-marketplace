@@ -5,12 +5,15 @@ import { Order } from './entities/order.entity';
 import { Transaction } from './entities/transaction.entity';
 import { TransactionService } from './services/transaction.service';
 import { TransactionController } from './controllers/transaction.controller';
+import { TransactionGrpcController } from './grpc/transaction-grpc.controller';
 import { DatabaseModule } from '@forex-marketplace/database';
 import { SharedUtilsModule } from '@forex-marketplace/shared-utils';
 import { MessageQueueModule } from '@forex-marketplace/message-queue';
 import { JwtStrategy, AuthModule } from '@forex-marketplace/auth';
 import { join } from 'path';
+import { Global } from '@nestjs/common';
 
+@Global()
 @Module({
   imports: [
     DatabaseModule,
@@ -90,7 +93,7 @@ import { join } from 'path';
       queue: 'notifications',
     }),
   ],
-  controllers: [TransactionController],
+  controllers: [TransactionController, TransactionGrpcController],
   providers: [TransactionService, JwtStrategy],
   exports: [TransactionService],
 })
