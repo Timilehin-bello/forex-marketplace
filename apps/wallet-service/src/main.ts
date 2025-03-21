@@ -8,7 +8,7 @@ import { ExceptionFilter } from '@forex-marketplace/shared-utils';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  const grpcUrl = process.env['GRPC_URL'] || 'localhost:5002';
+  const grpcUrl = process.env['WALLET_GRPC_URL'] || 'localhost:5002';
 
   // Use the mounted volume path directly
   const protoPath = '/app/apps/transaction-service/src/app/protos/wallet.proto';
@@ -82,7 +82,7 @@ async function bootstrap() {
     );
     Logger.log(
       `🚀 Wallet gRPC Service is running on: ${
-        process.env['GRPC_URL'] || 'localhost:5002'
+        process.env['WALLET_GRPC_URL'] || 'localhost:5002'
       }`
     );
   } catch (error) {

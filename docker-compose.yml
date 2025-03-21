@@ -57,7 +57,7 @@ services:
       - DB_DATABASE=forex
       - JWT_SECRET=your_jwt_secret_key
       - JWT_EXPIRES_IN=7d
-      - GRPC_URL=0.0.0.0:5003
+      - USER_GRPC_URL=0.0.0.0:5003
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       # Admin user credentials
@@ -93,7 +93,7 @@ services:
       - DB_DATABASE=forex
       - JWT_SECRET=your_jwt_secret_key
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
-      - GRPC_URL=0.0.0.0:5002
+      - WALLET_GRPC_URL=0.0.0.0:5002
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     ports:
@@ -126,7 +126,7 @@ services:
       - DB_PASSWORD=postgres
       - DB_DATABASE=forex
       - EXCHANGE_RATE_API_KEY=${EXCHANGE_RATE_API_KEY}
-      - GRPC_URL=0.0.0.0:5001
+      - RATE_GRPC_URL=0.0.0.0:5001
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     ports:
