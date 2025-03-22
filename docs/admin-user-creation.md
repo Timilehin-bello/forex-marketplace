@@ -111,5 +111,4 @@ Admin users have the following privileges:
 
 - Admin accounts should use strong passwords
 - Admin API endpoints are protected by JWT authentication and role-based guards
-- All admin actions are logged for audit purposes
 - Only grant admin access to trusted users
