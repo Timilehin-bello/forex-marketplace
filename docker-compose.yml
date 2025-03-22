@@ -47,7 +47,7 @@ services:
       dockerfile: Dockerfile
     entrypoint: ['/app/docker-entrypoint.sh']
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=${NODE_ENV}
       - USER_AUTH_PORT=3001
       - USER_AUTH_GRPC_PORT=5013
       - SERVICE_NAME=user-auth-service
@@ -84,7 +84,7 @@ services:
       dockerfile: Dockerfile
     entrypoint: ['/app/docker-entrypoint.sh']
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=${NODE_ENV}
       - WALLET_PORT=3002
       - WALLET_GRPC_PORT=5002
       - SERVICE_NAME=wallet-service
@@ -119,7 +119,7 @@ services:
       dockerfile: Dockerfile
     entrypoint: ['/app/docker-entrypoint.sh']
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=${NODE_ENV}
       - RATE_PORT=3003
       - RATE_GRPC_PORT=5011
       - SERVICE_NAME=rate-service
@@ -150,7 +150,7 @@ services:
       dockerfile: Dockerfile
     entrypoint: ['/app/docker-entrypoint.sh']
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=${NODE_ENV}
       - TRANSACTION_PORT=3014
       - TRANSACTION_GRPC_PORT=5014
       - SERVICE_NAME=transaction-service
@@ -193,7 +193,7 @@ services:
       dockerfile: Dockerfile
     entrypoint: ['/app/docker-entrypoint.sh']
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=${NODE_ENV}
       - NOTIFICATION_PORT=3006
       - NOTIFICATION_GRPC_PORT=5006
       - SERVICE_NAME=notification-service
