@@ -151,7 +151,11 @@ export class TransactionService implements OnModuleInit {
         );
       }
 
-      const rate = rateData.rate;
+      // Safely convert the rate to a number if it's a string
+      const rate = typeof rateData.rate === 'string' 
+        ? parseFloat(rateData.rate) 
+        : rateData.rate;
+
       this.logger.log(
         `Received rate: ${rate} for ${fromCurrency}/${toCurrency}`
       );
@@ -274,39 +278,72 @@ export class TransactionService implements OnModuleInit {
         );
       }
 
-      // Find user's wallets
-      const fromWallet = await firstValueFrom(
-        this.walletServiceClient.getWalletByUserIdAndCurrency({
-          userId: order.userId,
-          currency: order.fromCurrency,
-        })
-      );
+      // Find user's wallets with better error handling
+      let fromWallet;
+      try {
+        this.logger.log(`Getting source wallet for userId: ${order.userId}, currency: ${order.fromCurrency}`);
+        fromWallet = await firstValueFrom(
+          this.walletServiceClient.getWalletByUserIdAndCurrency({
+            userId: order.userId,
+            currency: order.fromCurrency,
+          })
+        );
+        this.logger.log(`Successfully retrieved source wallet: ${JSON.stringify(fromWallet)}`);
+      } catch (error) {
+        this.logger.log(`Source wallet not found, attempting to create one: ${error.message}`);
+        // Create the wallet if it doesn't exist
+        try {
+          fromWallet = await firstValueFrom(
+            this.walletServiceClient.createWallet({
+              userId: order.userId,
+              currency: order.fromCurrency,
+            })
+          );
+          this.logger.log(`Successfully created source wallet: ${JSON.stringify(fromWallet)}`);
+        } catch (createError) {
+          this.logger.error(`Failed to create source wallet: ${createError.message}`, createError.stack);
+          throw new BadRequestException(
+            `Failed to create wallet for ${order.fromCurrency}: ${createError.message}`
+          );
+        }
+      }
 
       if (!fromWallet) {
         order.status = OrderStatus.FAILED;
         await queryRunner.manager.save(order);
         throw new BadRequestException(
-          `Wallet for ${order.fromCurrency} not found`
+          `Failed to get or create wallet for ${order.fromCurrency}`
         );
       }
 
-      // Find or create destination wallet
+      // Find or create destination wallet with better error handling
       let toWallet;
       try {
+        this.logger.log(`Getting destination wallet for userId: ${order.userId}, currency: ${order.toCurrency}`);
         toWallet = await firstValueFrom(
           this.walletServiceClient.getWalletByUserIdAndCurrency({
             userId: order.userId,
             currency: order.toCurrency,
           })
         );
-      } catch {
+        this.logger.log(`Successfully retrieved destination wallet: ${JSON.stringify(toWallet)}`);
+      } catch (error) {
+        this.logger.log(`Destination wallet not found, attempting to create one: ${error.message}`);
         // Create the wallet if it doesn't exist
-        toWallet = await firstValueFrom(
-          this.walletServiceClient.createWallet({
-            userId: order.userId,
-            currency: order.toCurrency,
-          })
-        );
+        try {
+          toWallet = await firstValueFrom(
+            this.walletServiceClient.createWallet({
+              userId: order.userId,
+              currency: order.toCurrency,
+            })
+          );
+          this.logger.log(`Successfully created destination wallet: ${JSON.stringify(toWallet)}`);
+        } catch (createError) {
+          this.logger.error(`Failed to create destination wallet: ${createError.message}`, createError.stack);
+          throw new BadRequestException(
+            `Failed to create wallet for ${order.toCurrency}: ${createError.message}`
+          );
+        }
       }
       if (!toWallet) {
         order.status = OrderStatus.FAILED;
@@ -324,26 +361,44 @@ export class TransactionService implements OnModuleInit {
       }
 
       // Process debit from source wallet
-      await firstValueFrom(
-        this.walletServiceClient.processTransaction({
-          walletId: fromWallet.id,
-          type: 'DEBIT',
-          amount: order.fromAmount,
-          description: `Forex order: ${order.fromCurrency} to ${order.toCurrency}`,
-          referenceId: order.id,
-        })
-      );
+      try {
+        this.logger.log(`Processing debit transaction from wallet ${fromWallet.id}`);
+        await firstValueFrom(
+          this.walletServiceClient.processTransaction({
+            walletId: fromWallet.id,
+            type: 'DEBIT',
+            amount: order.fromAmount,
+            description: `Forex order: ${order.fromCurrency} to ${order.toCurrency}`,
+            referenceId: order.id,
+          })
+        );
+        this.logger.log(`Successfully processed debit transaction`);
+      } catch (debitError) {
+        this.logger.error(`Failed to process debit transaction: ${debitError.message}`, debitError.stack);
+        throw new BadRequestException(
+          `Failed to process debit transaction: ${debitError.message}`
+        );
+      }
 
       // Process credit to destination wallet
-      await firstValueFrom(
-        this.walletServiceClient.processTransaction({
-          walletId: toWallet.id,
-          type: 'CREDIT',
-          amount: order.toAmount,
-          description: `Forex order: ${order.fromCurrency} to ${order.toCurrency}`,
-          referenceId: order.id,
-        })
-      );
+      try {
+        this.logger.log(`Processing credit transaction to wallet ${toWallet.id}`);
+        await firstValueFrom(
+          this.walletServiceClient.processTransaction({
+            walletId: toWallet.id,
+            type: 'CREDIT',
+            amount: order.toAmount,
+            description: `Forex order: ${order.fromCurrency} to ${order.toCurrency}`,
+            referenceId: order.id,
+          })
+        );
+        this.logger.log(`Successfully processed credit transaction`);
+      } catch (creditError) {
+        this.logger.error(`Failed to process credit transaction: ${creditError.message}`, creditError.stack);
+        throw new BadRequestException(
+          `Failed to process credit transaction: ${creditError.message}`
+        );
+      }
 
       // Create transaction record
       const transaction = this.transactionRepository.create({
@@ -367,6 +422,7 @@ export class TransactionService implements OnModuleInit {
       // Get user email from user service
       let userEmail = '';
       try {
+        this.logger.log(`Getting user details for userId: ${order.userId}`);
         const userResponse = await firstValueFrom(
           this.userServiceClient.getUserById({ id: order.userId })
         );
@@ -429,6 +485,8 @@ export class TransactionService implements OnModuleInit {
     } catch (error) {
       // Rollback in case of error
       await queryRunner.rollbackTransaction();
+      
+      this.logger.error(`Error processing order ${orderId}: ${error.message}`, error.stack);
 
       // Update order status to FAILED if we couldn't handle in the catch block above
       try {
@@ -436,6 +494,7 @@ export class TransactionService implements OnModuleInit {
           where: { id: orderId },
         });
         if (order && order.status === OrderStatus.PENDING) {
+          this.logger.log(`Updating order ${orderId} status to FAILED`);
           order.status = OrderStatus.FAILED;
           await this.orderRepository.save(order);
 
@@ -461,6 +520,8 @@ export class TransactionService implements OnModuleInit {
             error.message.includes('not available for trading')
           ) {
             errorMessage = `Currency pair ${order.fromCurrency}/${order.toCurrency} is not available for trading`;
+          } else if (error.message.includes('UNKNOWN')) {
+            errorMessage = 'Communication error with service. Please try again later.';
           }
 
           // Send failure notification
@@ -487,10 +548,6 @@ export class TransactionService implements OnModuleInit {
         );
       }
 
-      this.logger.error(
-        `Error processing order: ${error.message}`,
-        error.stack
-      );
       throw error;
     } finally {
       // Release the query runner

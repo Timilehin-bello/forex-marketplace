@@ -173,10 +173,19 @@ services:
       - ./libs/grpc/src/lib/protos:/app/libs/grpc/src/lib/protos
       - ./docker-entrypoint.sh:/app/docker-entrypoint.sh
     depends_on:
-      - rate-service
-      - wallet-service
-      - user-auth-service
-      - redis
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rate-service:
+        condition: service_started
+      wallet-service:
+        condition: service_started
+      user-auth-service:
+        condition: service_started
+    restart: on-failure:3
 
   notification-service:
     build:

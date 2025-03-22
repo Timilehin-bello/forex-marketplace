@@ -46,11 +46,18 @@ export class RateGrpcController {
       const { baseCurrency, targetCurrency } = data;
       const rate = await this.rateService.getRate(baseCurrency, targetCurrency);
 
+      // Format timestamp safely whether it's a Date object or string
+      const timestamp = rate.timestamp instanceof Date 
+        ? rate.timestamp.toISOString() 
+        : typeof rate.timestamp === 'string' 
+          ? rate.timestamp 
+          : new Date().toISOString();
+
       const response: RateResponse = {
         baseCurrency: rate.baseCurrency,
         targetCurrency: rate.targetCurrency,
         rate: rate.rate,
-        timestamp: rate.timestamp.toISOString(),
+        timestamp: timestamp,
       };
 
       this.logger.log(`gRPC GetRate response: ${JSON.stringify(response)}`);
@@ -78,30 +85,29 @@ export class RateGrpcController {
       const paginatedRates = await this.rateService.getAllRates();
 
       const response: AllRatesResponse = {
-        rates: paginatedRates.items.map((rate) => ({
-          baseCurrency: rate.baseCurrency,
-          targetCurrency: rate.targetCurrency,
-          rate: rate.rate,
-          timestamp: rate.timestamp.toISOString(),
-        })),
+        rates: paginatedRates.items.map((rate) => {
+          // Format timestamp safely whether it's a Date object or string
+          const timestamp = rate.timestamp instanceof Date 
+            ? rate.timestamp.toISOString() 
+            : typeof rate.timestamp === 'string' 
+              ? rate.timestamp 
+              : new Date().toISOString();
+            
+          return {
+            baseCurrency: rate.baseCurrency,
+            targetCurrency: rate.targetCurrency,
+            rate: rate.rate,
+            timestamp: timestamp,
+          };
+        }),
       };
 
-      this.logger.log(
-        `gRPC GetAllRates response with ${response.rates.length} rates`
-      );
-      this.loggerService.log(
-        `gRPC GetAllRates response with ${response.rates.length} rates`
-      );
+      this.logger.log(`gRPC GetAllRates response with ${response.rates.length} rates`);
+      this.loggerService.log(`gRPC GetAllRates response with ${response.rates.length} rates`);
       return response;
     } catch (error) {
-      this.logger.error(
-        `gRPC GetAllRates error: ${error.message}`,
-        error.stack
-      );
-      this.loggerService.error(
-        `gRPC GetAllRates error: ${error.message}`,
-        error.stack
-      );
+      this.logger.error(`gRPC GetAllRates error: ${error.message}`, error.stack);
+      this.loggerService.error(`gRPC GetAllRates error: ${error.message}`, error.stack);
       throw error;
     }
   }
