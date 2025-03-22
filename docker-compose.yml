@@ -48,7 +48,8 @@ services:
     entrypoint: ['/app/docker-entrypoint.sh']
     environment:
       - NODE_ENV=development
-      - PORT=3001
+      - USER_AUTH_PORT=3001
+      - USER_AUTH_GRPC_PORT=5013
       - SERVICE_NAME=user-auth-service
       - DB_HOST=postgres
       - DB_PORT=5432
@@ -57,7 +58,7 @@ services:
       - DB_DATABASE=forex
       - JWT_SECRET=your_jwt_secret_key
       - JWT_EXPIRES_IN=7d
-      - USER_GRPC_URL=0.0.0.0:5003
+      - USER_GRPC_URL=0.0.0.0:5013
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       # Admin user credentials
@@ -67,7 +68,7 @@ services:
       - ADMIN_LASTNAME=${ADMIN_LASTNAME:-Admin}
     ports:
       - '3001:3001'
-      - '5003:5003'
+      - '5013:5013'
     depends_on:
       postgres:
         condition: service_healthy
@@ -84,7 +85,8 @@ services:
     entrypoint: ['/app/docker-entrypoint.sh']
     environment:
       - NODE_ENV=development
-      - PORT=3002
+      - WALLET_PORT=3002
+      - WALLET_GRPC_PORT=5002
       - SERVICE_NAME=wallet-service
       - DB_HOST=postgres
       - DB_PORT=5432
@@ -94,14 +96,14 @@ services:
       - JWT_SECRET=your_jwt_secret_key
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
       - WALLET_GRPC_URL=0.0.0.0:5002
+      - USER_GRPC_URL=user-auth-service:5013
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     ports:
       - '3002:3002'
       - '5002:5002'
     volumes:
-      - ./apps/transaction-service/src/app/protos:/app/apps/transaction-service/src/app/protos
-      - ./apps/wallet-service/src/protos:/app/dist/apps/wallet-service/protos
+      - ./libs/grpc/src/lib/protos:/app/libs/grpc/src/lib/protos
       - ./docker-entrypoint.sh:/app/docker-entrypoint.sh
     depends_on:
       postgres:
@@ -118,7 +120,8 @@ services:
     entrypoint: ['/app/docker-entrypoint.sh']
     environment:
       - NODE_ENV=development
-      - PORT=3003
+      - RATE_PORT=3003
+      - RATE_GRPC_PORT=5011
       - SERVICE_NAME=rate-service
       - DB_HOST=postgres
       - DB_PORT=5432
@@ -126,12 +129,12 @@ services:
       - DB_PASSWORD=postgres
       - DB_DATABASE=forex
       - EXCHANGE_RATE_API_KEY=${EXCHANGE_RATE_API_KEY}
-      - RATE_GRPC_URL=0.0.0.0:5001
+      - RATE_GRPC_URL=0.0.0.0:5011
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     ports:
       - '3003:3003'
-      - '5001:5001'
+      - '5011:5011'
     volumes:
       - ./libs/grpc/src/lib/protos:/app/libs/grpc/src/lib/protos
       - ./docker-entrypoint.sh:/app/docker-entrypoint.sh
@@ -148,7 +151,8 @@ services:
     entrypoint: ['/app/docker-entrypoint.sh']
     environment:
       - NODE_ENV=development
-      - PORT=3004
+      - TRANSACTION_PORT=3014
+      - TRANSACTION_GRPC_PORT=5014
       - SERVICE_NAME=transaction-service
       - DB_HOST=postgres
       - DB_PORT=5432
@@ -156,17 +160,17 @@ services:
       - DB_PASSWORD=postgres
       - DB_DATABASE=forex
       - JWT_SECRET=your_jwt_secret_key
-      - RATE_GRPC_URL=rate-service:5001
+      - RATE_GRPC_URL=rate-service:5011
       - WALLET_GRPC_URL=wallet-service:5002
-      - USER_GRPC_URL=user-auth-service:5003
+      - USER_GRPC_URL=user-auth-service:5013
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     ports:
-      - '3004:3004'
+      - '3014:3014'
+      - '5014:5014'
     volumes:
       - ./libs/grpc/src/lib/protos:/app/libs/grpc/src/lib/protos
-      - ./apps/transaction-service/src/app/protos:/app/apps/transaction-service/src/app/protos
       - ./docker-entrypoint.sh:/app/docker-entrypoint.sh
     depends_on:
       - rate-service
@@ -181,7 +185,8 @@ services:
     entrypoint: ['/app/docker-entrypoint.sh']
     environment:
       - NODE_ENV=development
-      - PORT=3005
+      - NOTIFICATION_PORT=3006
+      - NOTIFICATION_GRPC_PORT=5006
       - SERVICE_NAME=notification-service
       - DB_HOST=postgres
       - DB_PORT=5432
@@ -190,6 +195,7 @@ services:
       - DB_DATABASE=forex
       - JWT_SECRET=your_jwt_secret_key
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+      - USER_GRPC_URL=user-auth-service:5013
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - EMAIL_FROM=noreply@forex-platform.com
@@ -200,8 +206,10 @@ services:
       - SMTP_USER=${SMTP_USER}
       - SMTP_PASSWORD=${SMTP_PASSWORD}
     ports:
-      - '3005:3005'
+      - '3006:3006'
+      - '5006:5006'
     volumes:
+      - ./libs/grpc/src/lib/protos:/app/libs/grpc/src/lib/protos
       - ./docker-entrypoint.sh:/app/docker-entrypoint.sh
     depends_on:
       rabbitmq:

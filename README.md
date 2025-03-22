@@ -89,20 +89,25 @@ All necessary environment variables are listed below. You can configure them in 
 #### Service-Specific Variables
 | Variable | Description | Service | Default |
 |----------|-------------|---------|---------|
-| USER_AUTH_PORT | User Auth Service port | User Auth | `3001` |
-| WALLET_PORT | Wallet Service port | Wallet | `3002` |
-| RATE_PORT | Rate Service port | Rate | `3003` |
-| TRANSACTION_PORT | Transaction Service port | Transaction | `3004` |
-| NOTIFICATION_PORT | Notification Service port | Notification | `3005` |
+| USER_AUTH_PORT | User Auth Service HTTP port | User Auth | `3001` |
+| USER_AUTH_GRPC_PORT | User Auth Service gRPC port | User Auth | `5013` |
+| USER_GRPC_URL | User Auth gRPC URL | User Auth | `localhost:5013` |
+| WALLET_PORT | Wallet Service HTTP port | Wallet | `3002` |
+| WALLET_GRPC_PORT | Wallet Service gRPC port | Wallet | `5002` |
+| WALLET_GRPC_URL | Wallet gRPC URL | Wallet | `localhost:5002` |
+| RATE_PORT | Rate Service HTTP port | Rate | `3003` |
+| RATE_GRPC_PORT | Rate Service gRPC port | Rate | `5011` |
+| RATE_GRPC_URL | Rate gRPC URL | Rate | `localhost:5011` |
+| TRANSACTION_PORT | Transaction Service HTTP port | Transaction | `3014` |
+| TRANSACTION_GRPC_PORT | Transaction Service gRPC port | Transaction | `5014` |
+| TRANSACTION_GRPC_URL | Transaction gRPC URL | Transaction | `localhost:5014` |
+| NOTIFICATION_PORT | Notification Service HTTP port | Notification | `3006` |
+| NOTIFICATION_GRPC_PORT | Notification Service gRPC port | Notification | `5006` |
+| NOTIFICATION_GRPC_URL | Notification gRPC URL | Notification | `localhost:5006` |
 | ADMIN_EMAIL | Admin user email | User Auth | `admin@forex-marketplace.com` |
 | ADMIN_PASSWORD | Admin user password | User Auth | `Admin@123456` |
 | ADMIN_FIRSTNAME | Admin first name | User Auth | `Super` |
 | ADMIN_LASTNAME | Admin last name | User Auth | `Admin` |
-| USER_GRPC_URL | User gRPC URL | User Auth | `0.0.0.0:5003` |
-| WALLET_GRPC_URL | Wallet gRPC URL | Wallet | `0.0.0.0:5002` |
-| RATE_GRPC_URL | Rate gRPC URL | Rate | `0.0.0.0:5001` |
-| TRANSACTION_GRPC_URL | Transaction gRPC URL | Transaction | `0.0.0.0:5004` |
-| NOTIFICATION_GRPC_URL | Notification gRPC URL | Notification | `0.0.0.0:5005` |
 | EXCHANGE_RATE_API_KEY | API key for rates | Rate | (Required) |
 | EMAIL_FROM | Email sender address | Notification | `noreply@forex-platform.com` |
 | SMTP_HOST | SMTP server host | Notification | (Required for emails) |
@@ -222,8 +227,8 @@ The API documentation is available via Swagger UI when the services are running:
 - User Auth Service: http://localhost:3001/api/v1/docs
 - Wallet Service: http://localhost:3002/api/v1/docs
 - Rate Service: http://localhost:3003/api/v1/docs
-- Transaction Service: http://localhost:3004/api/v1/docs
-- Notification Service: http://localhost:3005/api/v1/docs
+- Transaction Service: http://localhost:3014/api/v1/docs
+- Notification Service: http://localhost:3006/api/v1/docs
 
 ## Project Structure
 

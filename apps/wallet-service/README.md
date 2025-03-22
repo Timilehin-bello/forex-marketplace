@@ -30,20 +30,22 @@ This service relies on the following main dependencies:
 
 ## Environment Variables
 
-| Variable        | Description               | Default                             |
-| --------------- | ------------------------- | ----------------------------------- |
-| NODE_ENV        | Environment mode          | `development`                       |
-| PORT            | HTTP port                 | `3002`                              |
-| DB_HOST         | PostgreSQL host           | `localhost`                         |
-| DB_PORT         | PostgreSQL port           | `5432`                              |
-| DB_USERNAME     | PostgreSQL username       | `postgres`                          |
-| DB_PASSWORD     | PostgreSQL password       | `postgres`                          |
-| DB_DATABASE     | PostgreSQL database name  | `forex`                             |
-| JWT_SECRET      | Secret key for JWT tokens | -                                   |
-| RABBITMQ_URL    | RabbitMQ connection URL   | `amqp://guest:guest@localhost:5672` |
-| WALLET_GRPC_URL | gRPC server URL           | `0.0.0.0:5002`                      |
-| REDIS_HOST      | Redis host                | `localhost`                         |
-| REDIS_PORT      | Redis port                | `6379`                              |
+| Variable          | Description               | Default                             |
+| ----------------- | ------------------------- | ----------------------------------- |
+| NODE_ENV          | Environment mode          | `development`                       |
+| WALLET_PORT       | HTTP port                 | `3002`                              |
+| WALLET_GRPC_PORT  | gRPC port                 | `5002`                              |
+| DB_HOST           | PostgreSQL host           | `localhost`                         |
+| DB_PORT           | PostgreSQL port           | `5432`                              |
+| DB_USERNAME       | PostgreSQL username       | `postgres`                          |
+| DB_PASSWORD       | PostgreSQL password       | `postgres`                          |
+| DB_DATABASE       | PostgreSQL database name  | `forex`                             |
+| JWT_SECRET        | Secret key for JWT tokens | -                                   |
+| RABBITMQ_URL      | RabbitMQ connection URL   | `amqp://guest:guest@localhost:5672` |
+| WALLET_GRPC_URL   | gRPC server URL           | `localhost:5002`                    |
+| USER_GRPC_URL     | User service gRPC URL     | `localhost:5013`                    |
+| REDIS_HOST        | Redis host                | `localhost`                         |
+| REDIS_PORT        | Redis port                | `6379`                              |
 
 ## Setup Instructions
 

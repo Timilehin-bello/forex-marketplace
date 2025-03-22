@@ -22,6 +22,7 @@
     "../../libs/shared-types/src/**/*.ts",
     "../../libs/shared-utils/src/**/*.ts",
     "../../libs/database/src/**/*.ts",
-    "../../libs/message-queue/src/**/*.ts"
+    "../../libs/message-queue/src/**/*.ts",
+    "../../libs/grpc/src/**/*.ts"
   ]
 }

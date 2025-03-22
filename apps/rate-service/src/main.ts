@@ -10,7 +10,7 @@ import { readFileSync } from 'fs';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  const grpcUrl = process.env['GRPC_URL'] || 'localhost:5001';
+  const grpcUrl = process.env['RATE_GRPC_URL'] || `0.0.0.0:${process.env.RATE_GRPC_PORT || 5011}`;
   const protoPath = join(
     __dirname,
     '../../../libs/grpc/src/lib/protos/rate.proto'
@@ -86,7 +86,7 @@ async function bootstrap() {
     Logger.log('Available gRPC methods: GetRate, GetAllRates');
 
     // Start HTTP server
-    const port = process.env.PORT || 3003;
+    const port = process.env.RATE_PORT || 3003;
     await app.listen(port);
 
     Logger.log(

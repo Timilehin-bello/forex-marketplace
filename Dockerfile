@@ -14,6 +14,9 @@ COPY . .
 # Build all projects
 RUN yarn nx run-many --target=build --all
 
+# Make sure the proto files are copied to dist directory
+RUN mkdir -p dist/libs/grpc/protos && cp -r libs/grpc/src/lib/protos/* dist/libs/grpc/protos/
+
 FROM node:20-alpine
 
 WORKDIR /app
@@ -29,7 +32,6 @@ RUN chmod +x /app/docker-entrypoint.sh
 
 # Copy proto files - important!
 COPY --from=builder /app/libs/grpc/src/lib/protos ./libs/grpc/src/lib/protos
-COPY --from=builder /app/apps/transaction-service/src/app/protos ./apps/transaction-service/src/app/protos
 
 # Set environment variable for service name
 ENV SERVICE_NAME=user-auth-service

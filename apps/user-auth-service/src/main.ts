@@ -28,7 +28,7 @@ async function bootstrap() {
   app.enableCors();
 
   // Setup gRPC microservice
-  const grpcUrl = process.env.GRPC_URL || '0.0.0.0:5003';
+  const grpcUrl = process.env.USER_GRPC_URL || `0.0.0.0:${process.env.USER_AUTH_GRPC_PORT || 5013}`;
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.GRPC,
     options: {
@@ -45,7 +45,7 @@ async function bootstrap() {
   await app.startAllMicroservices();
   Logger.log(`🚀 User Auth gRPC Service is running on: ${grpcUrl}`);
 
-  const port = process.env.PORT || 3001;
+  const port = process.env.USER_AUTH_PORT || 3001;
   await app.listen(port);
 
   Logger.log(

@@ -31,25 +31,27 @@ This service relies on the following main dependencies:
 
 ## Environment Variables
 
-| Variable      | Description               | Default                             |
-| ------------- | ------------------------- | ----------------------------------- |
-| NODE_ENV      | Environment mode          | `development`                       |
-| PORT          | HTTP port                 | `3005`                              |
-| DB_HOST       | PostgreSQL host           | `localhost`                         |
-| DB_PORT       | PostgreSQL port           | `5432`                              |
-| DB_USERNAME   | PostgreSQL username       | `postgres`                          |
-| DB_PASSWORD   | PostgreSQL password       | `postgres`                          |
-| DB_DATABASE   | PostgreSQL database name  | `forex`                             |
-| JWT_SECRET    | Secret key for JWT tokens | -                                   |
-| RABBITMQ_URL  | RabbitMQ connection URL   | `amqp://guest:guest@localhost:5672` |
-| REDIS_HOST    | Redis host                | `localhost`                         |
-| REDIS_PORT    | Redis port                | `6379`                              |
-| EMAIL_FROM    | Email sender address      | `noreply@forex-platform.com`        |
-| SMTP_HOST     | SMTP server host          | -                                   |
-| SMTP_PORT     | SMTP server port          | `587`                               |
-| SMTP_SECURE   | Use secure connection     | `false`                             |
-| SMTP_USER     | SMTP server username      | -                                   |
-| SMTP_PASSWORD | SMTP server password      | -                                   |
+| Variable                | Description               | Default                             |
+| ----------------------- | ------------------------- | ----------------------------------- |
+| NODE_ENV                | Environment mode          | `development`                       |
+| NOTIFICATION_PORT       | HTTP port                 | `3006`                              |
+| NOTIFICATION_GRPC_PORT  | gRPC port                 | `5006`                              |
+| DB_HOST                 | PostgreSQL host           | `localhost`                         |
+| DB_PORT                 | PostgreSQL port           | `5432`                              |
+| DB_USERNAME             | PostgreSQL username       | `postgres`                          |
+| DB_PASSWORD             | PostgreSQL password       | `postgres`                          |
+| DB_DATABASE             | PostgreSQL database name  | `forex`                             |
+| JWT_SECRET              | Secret key for JWT tokens | -                                   |
+| RABBITMQ_URL            | RabbitMQ connection URL   | `amqp://guest:guest@localhost:5672` |
+| NOTIFICATION_GRPC_URL   | Notification gRPC URL     | `localhost:5006`                    |
+| REDIS_HOST              | Redis host                | `localhost`                         |
+| REDIS_PORT              | Redis port                | `6379`                              |
+| EMAIL_FROM              | Email sender address      | `noreply@forex-platform.com`        |
+| SMTP_HOST               | SMTP server host          | -                                   |
+| SMTP_PORT               | SMTP server port          | `587`                               |
+| SMTP_SECURE             | Use secure connection     | `false`                             |
+| SMTP_USER               | SMTP server username      | -                                   |
+| SMTP_PASSWORD           | SMTP server password      | -                                   |
 
 ## Setup Instructions
 

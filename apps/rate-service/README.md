@@ -30,19 +30,20 @@ This service relies on the following main dependencies:
 
 ## Environment Variables
 
-| Variable              | Description                        | Default        |
-| --------------------- | ---------------------------------- | -------------- |
-| NODE_ENV              | Environment mode                   | `development`  |
-| PORT                  | HTTP port                          | `3003`         |
-| DB_HOST               | PostgreSQL host                    | `localhost`    |
-| DB_PORT               | PostgreSQL port                    | `5432`         |
-| DB_USERNAME           | PostgreSQL username                | `postgres`     |
-| DB_PASSWORD           | PostgreSQL password                | `postgres`     |
-| DB_DATABASE           | PostgreSQL database name           | `forex`        |
-| EXCHANGE_RATE_API_KEY | API key for exchange rate provider | -              |
-| RATE_GRPC_URL         | gRPC server URL                    | `0.0.0.0:5001` |
-| REDIS_HOST            | Redis host                         | `localhost`    |
-| REDIS_PORT            | Redis port                         | `6379`         |
+| Variable              | Description                        | Default          |
+| --------------------- | ---------------------------------- | ---------------- |
+| NODE_ENV              | Environment mode                   | `development`    |
+| RATE_PORT             | HTTP port                          | `3003`           |
+| RATE_GRPC_PORT        | gRPC port                          | `5011`           |
+| DB_HOST               | PostgreSQL host                    | `localhost`      |
+| DB_PORT               | PostgreSQL port                    | `5432`           |
+| DB_USERNAME           | PostgreSQL username                | `postgres`       |
+| DB_PASSWORD           | PostgreSQL password                | `postgres`       |
+| DB_DATABASE           | PostgreSQL database name           | `forex`          |
+| EXCHANGE_RATE_API_KEY | API key for exchange rate provider | -                |
+| RATE_GRPC_URL         | gRPC server URL                    | `localhost:5011` |
+| REDIS_HOST            | Redis host                         | `localhost`      |
+| REDIS_PORT            | Redis port                         | `6379`           |
 
 ## Setup Instructions
 

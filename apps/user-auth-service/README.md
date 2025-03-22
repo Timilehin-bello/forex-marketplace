@@ -29,24 +29,25 @@ This service relies on the following main dependencies:
 
 ## Environment Variables
 
-| Variable        | Description               | Default                       |
-| --------------- | ------------------------- | ----------------------------- |
-| NODE_ENV        | Environment mode          | `development`                 |
-| PORT            | HTTP port                 | `3001`                        |
-| DB_HOST         | PostgreSQL host           | `localhost`                   |
-| DB_PORT         | PostgreSQL port           | `5432`                        |
-| DB_USERNAME     | PostgreSQL username       | `postgres`                    |
-| DB_PASSWORD     | PostgreSQL password       | `postgres`                    |
-| DB_DATABASE     | PostgreSQL database name  | `forex`                       |
-| JWT_SECRET      | Secret key for JWT tokens | -                             |
-| JWT_EXPIRES_IN  | JWT token expiration      | `7d`                          |
-| USER_GRPC_URL   | gRPC server URL           | `0.0.0.0:5003`                |
-| REDIS_HOST      | Redis host                | `localhost`                   |
-| REDIS_PORT      | Redis port                | `6379`                        |
-| ADMIN_EMAIL     | Admin user email          | `admin@forex-marketplace.com` |
-| ADMIN_PASSWORD  | Admin user password       | `Admin@123456`                |
-| ADMIN_FIRSTNAME | Admin user first name     | `Super`                       |
-| ADMIN_LASTNAME  | Admin user last name      | `Admin`                       |
+| Variable            | Description               | Default                       |
+| ------------------- | ------------------------- | ----------------------------- |
+| NODE_ENV            | Environment mode          | `development`                 |
+| USER_AUTH_PORT      | HTTP port                 | `3001`                        |
+| USER_AUTH_GRPC_PORT | gRPC port                 | `5013`                        |
+| DB_HOST             | PostgreSQL host           | `localhost`                   |
+| DB_PORT             | PostgreSQL port           | `5432`                        |
+| DB_USERNAME         | PostgreSQL username       | `postgres`                    |
+| DB_PASSWORD         | PostgreSQL password       | `postgres`                    |
+| DB_DATABASE         | PostgreSQL database name  | `forex`                       |
+| JWT_SECRET          | Secret key for JWT tokens | -                             |
+| JWT_EXPIRES_IN      | JWT token expiration      | `7d`                          |
+| USER_GRPC_URL       | gRPC server URL           | `localhost:5013`              |
+| REDIS_HOST          | Redis host                | `localhost`                   |
+| REDIS_PORT          | Redis port                | `6379`                        |
+| ADMIN_EMAIL         | Admin user email          | `admin@forex-marketplace.com` |
+| ADMIN_PASSWORD      | Admin user password       | `Admin@123456`                |
+| ADMIN_FIRSTNAME     | Admin user first name     | `Super`                       |
+| ADMIN_LASTNAME      | Admin user last name      | `Admin`                       |
 
 ## Setup Instructions
 

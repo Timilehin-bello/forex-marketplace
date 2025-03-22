@@ -43,4 +43,4 @@ message TransactionResponse {
 message CreateWalletRequest {
   string userId = 1;
   string currency = 2;
-}
+} 
