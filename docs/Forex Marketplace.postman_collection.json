@@ -1,0 +1,3309 @@
+{
+	"info": {
+		"_postman_id": "9403b1d9-ed99-4c84-bf13-8986f3dae42b",
+		"name": "Forex Marketplace",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "12489526"
+	},
+	"item": [
+		{
+			"name": "User and Auth",
+			"item": [
+				{
+					"name": "Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"TOKEN\", pm.response.json().data.token)",
+									"pm.environment.set(\"authToken\", pm.response.json().data.token)",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"email\": \"user2@example.com\",\n\t\"firstName\": \"John\",\n\t\"lastName\": \"Doe\",\n\t\"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/users/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"register"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"email\": \"user@example.com\",\n\t\"firstName\": \"John\",\n\t\"lastName\": \"Doe\",\n\t\"password\": \"password123\"\n}"
+								},
+								"url": {
+									"raw": "http://localhost:3001//api/v1/users/register",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3001",
+									"path": [
+										"",
+										"api",
+										"v1",
+										"users",
+										"register"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "522"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"20a-76beNjIkIm9VA4nG8dzxtSzXpU8\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 19 Mar 2025 01:25:17 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"user\": {\n            \"email\": \"user@example.com\",\n            \"firstName\": \"John\",\n            \"lastName\": \"Doe\",\n            \"id\": \"b487983f-c48b-4061-ba0d-5f92bd24bfa9\",\n            \"isActive\": true,\n            \"createdAt\": \"2025-03-19T01:25:17.459Z\",\n            \"updatedAt\": \"2025-03-19T01:25:17.459Z\"\n        },\n        \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiNDg3OTgzZi1jNDhiLTQwNjEtYmEwZC01ZjkyYmQyNGJmYTkiLCJlbWFpbCI6InVzZXJAZXhhbXBsZS5jb20iLCJpYXQiOjE3NDIzNDc1MTcsImV4cCI6MTc0Mjk1MjMxN30.kTwRfkQ7JLkUV2zTMeYE98_hNnRB-8H9iKcSzCj3cTI\"\n    },\n    \"error\": null,\n    \"timestamp\": \"2025-03-19T01:25:17.484Z\"\n}"
+						},
+						{
+							"name": "Error",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"email\": \"user@example.com\",\n\t\"firstName\": \"John\",\n\t\"lastName\": \"Doe\",\n\t\"password\": \"password123\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/users/register",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"users",
+										"register"
+									]
+								}
+							},
+							"status": "Conflict",
+							"code": 409,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "176"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"b0-jGhnGnPzTL3vcurFvW04ygHQjz8\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 19 Mar 2025 01:27:14 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"data\": {\n        \"statusCode\": 409,\n        \"path\": \"/api/v1/users/register\",\n        \"method\": \"POST\"\n    },\n    \"error\": \"User with this email already exists\",\n    \"timestamp\": \"2025-03-19T01:27:14.371Z\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"TOKEN\", pm.response.json().data.token)",
+									"pm.environment.set(\"authToken\", pm.response.json().data.token)",
+									"pm.environment.set(\"userId\", pm.response.json().data.user.id)"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "// {\n// \t\"email\": \"user@example.com\",\n// \t\"password\": \"password123\"\n// }\n\n{\n\t\"email\": \"admin@forex-marketplace.com\",\n\t\"password\": \"Admin@123456\"\n}\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/users/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"email\": \"user@example.com\",\n\t\"password\": \"password123\"\n}"
+								},
+								"url": {
+									"raw": "http://localhost:3001//api/v1/users/login",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3001",
+									"path": [
+										"",
+										"api",
+										"v1",
+										"users",
+										"login"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "522"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"20a-HN169pF6/yNDNXzHlUMCO/4s9MQ\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 19 Mar 2025 15:35:43 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"user\": {\n            \"id\": \"b487983f-c48b-4061-ba0d-5f92bd24bfa9\",\n            \"email\": \"user@example.com\",\n            \"firstName\": \"John\",\n            \"lastName\": \"Doe\",\n            \"isActive\": true,\n            \"createdAt\": \"2025-03-19T01:25:17.459Z\",\n            \"updatedAt\": \"2025-03-19T01:25:17.459Z\"\n        },\n        \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiNDg3OTgzZi1jNDhiLTQwNjEtYmEwZC01ZjkyYmQyNGJmYTkiLCJlbWFpbCI6InVzZXJAZXhhbXBsZS5jb20iLCJpYXQiOjE3NDIzOTg1NDMsImV4cCI6MTc0MzAwMzM0M30.vk_3CczHZ9ikdXItDDEnpQ4qeBYGQ8YBbDJ8DxPAark\"\n    },\n    \"error\": null,\n    \"timestamp\": \"2025-03-19T15:35:43.742Z\"\n}"
+						},
+						{
+							"name": "Error",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"email\": \"user@example.com\",\n\t\"password\": \"password13\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/users/login",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"users",
+										"login"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "157"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"9d-Xin/os+hPTZl26xiTeAR7qTgKgA\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 19 Mar 2025 15:36:31 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"data\": {\n        \"statusCode\": 404,\n        \"path\": \"/api/v1/users/login\",\n        \"method\": \"POST\"\n    },\n    \"error\": \"Invalid credentials\",\n    \"timestamp\": \"2025-03-19T15:36:31.935Z\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/users/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"profile"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer "
+									}
+								],
+								"url": {
+									"raw": "http://localhost:3001//api/v1/users/profile",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3001",
+									"path": [
+										"",
+										"api",
+										"v1",
+										"users",
+										"profile"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "278"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"116-LamsfnsgIezLeSMV7YYt0jQ5sTQ\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 19 Mar 2025 15:38:00 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"id\": \"b487983f-c48b-4061-ba0d-5f92bd24bfa9\",\n        \"email\": \"user@example.com\",\n        \"firstName\": \"John\",\n        \"lastName\": \"Doe\",\n        \"isActive\": true,\n        \"createdAt\": \"2025-03-19T01:25:17.459Z\",\n        \"updatedAt\": \"2025-03-19T01:25:17.459Z\"\n    },\n    \"error\": null,\n    \"timestamp\": \"2025-03-19T15:38:00.403Z\"\n}"
+						},
+						{
+							"name": "Error",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{authToken}}"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/users/profile",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"users",
+										"profile"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "151"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"97-IRR8IbVqcgxpmJkic9UXV2x5gTs\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 19 Mar 2025 15:38:43 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"data\": {\n        \"statusCode\": 401,\n        \"path\": \"/api/v1/users/profile\",\n        \"method\": \"GET\"\n    },\n    \"error\": \"Unauthorized\",\n    \"timestamp\": \"2025-03-19T15:38:43.076Z\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Create Admin",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"new2admin@example.com\",\n  \"password\": \"SecurePassword123\",\n  \"firstName\": \"New\",\n  \"lastName\": \"Admin\",\n  \"roles\": [\"ADMIN\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/users/admin",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"admin"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Error",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer ",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"email\": \"new2admin@example.com\",\n  \"password\": \"SecurePassword123\",\n  \"firstName\": \"New\",\n  \"lastName\": \"Admin\",\n  \"roles\": [\"ADMIN\"]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:3001//api/v1/users/admin",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3001",
+									"path": [
+										"",
+										"api",
+										"v1",
+										"users",
+										"admin"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "162"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"a2-juQMpBh2BNHx3kBx1ESRTnNzFdc\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 19 Mar 2025 16:53:01 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"data\": {\n        \"statusCode\": 401,\n        \"path\": \"/api/v1/users/admin\",\n        \"method\": \"POST\"\n    },\n    \"error\": \"Insufficient permissions\",\n    \"timestamp\": \"2025-03-19T16:53:01.553Z\"\n}"
+						},
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{authToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"email\": \"new2admin@example.com\",\n  \"password\": \"SecurePassword123\",\n  \"firstName\": \"New\",\n  \"lastName\": \"Admin\",\n  \"roles\": [\"ADMIN\"]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/users/admin",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"users",
+										"admin"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "612"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"264-FBLkUD+2G0j27RSVGV5A0UGEZqc\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 19 Mar 2025 17:05:45 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"user\": {\n            \"email\": \"new2admin@example.com\",\n            \"firstName\": \"New\",\n            \"lastName\": \"Admin\",\n            \"isAdmin\": true,\n            \"roles\": [\n                \"ADMIN\"\n            ],\n            \"id\": \"e71e0760-4f00-4052-9b63-e4ccb5efb553\",\n            \"isActive\": true,\n            \"createdAt\": \"2025-03-19T17:05:45.143Z\",\n            \"updatedAt\": \"2025-03-19T17:05:45.143Z\"\n        },\n        \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNzFlMDc2MC00ZjAwLTQwNTItOWI2My1lNGNjYjVlZmI1NTMiLCJlbWFpbCI6Im5ldzJhZG1pbkBleGFtcGxlLmNvbSIsImlzQWRtaW4iOnRydWUsInJvbGVzIjpbIkFETUlOIl0sImlhdCI6MTc0MjQwMzk0NSwiZXhwIjoxNzQzMDA4NzQ1fQ._n7aaalvWeXWFI0V4i_x66Zad3qCQ9etrhX0mFYAgLU\"\n    },\n    \"error\": null,\n    \"timestamp\": \"2025-03-19T17:05:45.163Z\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Promote User to Admin",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/users/promote/:userId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"promote",
+								":userId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "e48153f5-5778-4ea0-a512-ca6b9fc65efb"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer ",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://localhost:3001//api/v1/users/promote/:userId",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3001",
+									"path": [
+										"",
+										"api",
+										"v1",
+										"users",
+										"promote",
+										":userId"
+									],
+									"variable": [
+										{
+											"key": "userId",
+											"value": "e48153f5-5778-4ea0-a512-ca6b9fc65efb"
+										}
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "311"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"137-/g6YL7xpCQyJcBrqttst/vas2zw\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 19 Mar 2025 16:59:29 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"id\": \"e48153f5-5778-4ea0-a512-ca6b9fc65efb\",\n        \"email\": \"user@example.com\",\n        \"firstName\": \"John\",\n        \"lastName\": \"Doe\",\n        \"isActive\": true,\n        \"isAdmin\": true,\n        \"roles\": [\n            \"ADMIN\"\n        ],\n        \"createdAt\": \"2025-03-19T16:43:40.146Z\",\n        \"updatedAt\": \"2025-03-19T16:59:29.452Z\"\n    },\n    \"error\": null,\n    \"timestamp\": \"2025-03-19T16:59:29.559Z\"\n}"
+						},
+						{
+							"name": "Error",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{authToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/users/promote/:userId",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"users",
+										"promote",
+										":userId"
+									],
+									"variable": [
+										{
+											"key": "userId",
+											"value": "e48153f5-5778-4ea0-a512-ca6b9fc65efb"
+										}
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "201"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"c9-Mg7PZpwIMJ2Vmh+ikoDggUBaRTE\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 19 Mar 2025 17:16:09 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"data\": {\n        \"statusCode\": 401,\n        \"path\": \"/api/v1/users/promote/e48153f5-5778-4ea0-a512-ca6b9fc65efb\",\n        \"method\": \"POST\"\n    },\n    \"error\": \"Insufficient permissions\",\n    \"timestamp\": \"2025-03-19T17:16:09.319Z\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Wallet",
+			"item": [
+				{
+					"name": "Create Wallet",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"walletId\", pm.response.json().data.id)"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"userId\": \"{{userId}}\",\n\t\"currency\": \"USD\"\n}"
+						},
+						"url": {
+							"raw": "{{walletBaseUrl}}/api/v1/wallets",
+							"host": [
+								"{{walletBaseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"wallets"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer "
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"userId\": \"\",\n\t\"currency\": \"USD\"\n}"
+								},
+								"url": {
+									"raw": "http://localhost:3002/api/v1/wallets",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3002",
+									"path": [
+										"api",
+										"v1",
+										"wallets"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "287"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"11f-UH0GLI92xDEC8atjWKwJR8Rl7mk\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 19 Mar 2025 15:39:26 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"userId\": \"b487983f-c48b-4061-ba0d-5f92bd24bfa9\",\n        \"currency\": \"USD\",\n        \"id\": \"1aad045f-9be9-438b-aa67-d13fdcc7d71e\",\n        \"balance\": \"0.00000000\",\n        \"createdAt\": \"2025-03-19T15:39:26.150Z\",\n        \"updatedAt\": \"2025-03-19T15:39:26.150Z\"\n    },\n    \"error\": null,\n    \"timestamp\": \"2025-03-19T15:39:26.206Z\"\n}"
+						},
+						{
+							"name": "Error",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{authToken}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"userId\": \"{{userId}}\",\n\t\"currency\": \"USD\"\n}"
+								},
+								"url": {
+									"raw": "{{walletBaseUrl}}/api/v1/wallets",
+									"host": [
+										"{{walletBaseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"wallets"
+									]
+								}
+							},
+							"status": "Conflict",
+							"code": 409,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "186"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"ba-Rp9W0HKocjrX5lUU+ao55lLBdzM\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 19 Mar 2025 15:39:34 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"data\": {\n        \"statusCode\": 409,\n        \"path\": \"/api/v1/wallets\",\n        \"method\": \"POST\"\n    },\n    \"error\": \"Wallet for currency USD already exists for this user\",\n    \"timestamp\": \"2025-03-19T15:39:34.756Z\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get User Wallets",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"walletId\", pm.response.json().data.items[0].id);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{walletBaseUrl}}/api/v1/wallets/user/{{userId}}",
+							"host": [
+								"{{walletBaseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"wallets",
+								"user",
+								"{{userId}}"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "limit",
+									"value": "3",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Error",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer "
+									}
+								],
+								"url": {
+									"raw": "http://localhost:3002/api/v1/wallets/user/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3002",
+									"path": [
+										"api",
+										"v1",
+										"wallets",
+										"user",
+										""
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "228"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"e4-Xe+ZygtSMUuP/2XFLrYCSVHsIA4\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 19 Mar 2025 17:30:08 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"data\": {\n        \"statusCode\": 401,\n        \"path\": \"/api/v1/wallets/user/a7e3f3db-b220-4229-8dcc-db7f6175c60\",\n        \"method\": \"GET\"\n    },\n    \"error\": \"You are not authorized to access wallets for this user\",\n    \"timestamp\": \"2025-03-19T17:30:08.078Z\"\n}"
+						},
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{authToken}}"
+									}
+								],
+								"url": {
+									"raw": "{{walletBaseUrl}}/api/v1/wallets/user/{{userId}}?page=1&limit=3",
+									"host": [
+										"{{walletBaseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"wallets",
+										"user",
+										"{{userId}}"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "1"
+										},
+										{
+											"key": "limit",
+											"value": "3"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "992"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"3e0-AuDCKwteDwB9rDLcgk88l3jJbWo\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 19 Mar 2025 22:54:02 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"items\": [\n            {\n                \"id\": \"bf6e99c0-dce7-4527-977f-0a81b38c2b65\",\n                \"userId\": \"a7e3f3db-b220-4229-8dcc-db7f6175c609\",\n                \"currency\": \"CAD\",\n                \"balance\": \"1000.00000000\",\n                \"createdAt\": \"2025-03-19T22:43:12.731Z\",\n                \"updatedAt\": \"2025-03-19T22:52:23.663Z\"\n            },\n            {\n                \"id\": \"0afa4ef9-9721-4639-9873-ea8179e39b65\",\n                \"userId\": \"a7e3f3db-b220-4229-8dcc-db7f6175c609\",\n                \"currency\": \"EUR\",\n                \"balance\": \"91.46000000\",\n                \"createdAt\": \"2025-03-19T17:57:10.799Z\",\n                \"updatedAt\": \"2025-03-19T17:57:10.831Z\"\n            },\n            {\n                \"id\": \"09268dd0-c62f-44bd-8819-141bb827a180\",\n                \"userId\": \"a7e3f3db-b220-4229-8dcc-db7f6175c609\",\n                \"currency\": \"NGN\",\n                \"balance\": \"153703.42000000\",\n                \"createdAt\": \"2025-03-19T17:57:32.251Z\",\n                \"updatedAt\": \"2025-03-19T17:57:32.286Z\"\n            },\n            {\n                \"id\": \"05b5d6f7-66c0-4cd2-ac73-904ddf1037f9\",\n                \"userId\": \"a7e3f3db-b220-4229-8dcc-db7f6175c609\",\n                \"currency\": \"USD\",\n                \"balance\": \"1800.00000000\",\n                \"createdAt\": \"2025-03-19T17:27:03.191Z\",\n                \"updatedAt\": \"2025-03-19T17:57:32.268Z\"\n            }\n        ],\n        \"total\": 4,\n        \"page\": 1,\n        \"limit\": 10,\n        \"totalPages\": 1\n    },\n    \"error\": null,\n    \"timestamp\": \"2025-03-19T22:54:02.264Z\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Wallet by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{walletBaseUrl}}/api/v1/wallets/{{walletId}}",
+							"host": [
+								"{{walletBaseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"wallets",
+								"{{walletId}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Error",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer "
+									}
+								],
+								"url": {
+									"raw": "http://localhost:3002/api/v1/wallets/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3002",
+									"path": [
+										"api",
+										"v1",
+										"wallets",
+										""
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "214"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"d6-xO5o0d5Pr9jsvKAEwNEjHiXELLE\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 19 Mar 2025 17:37:12 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"data\": {\n        \"statusCode\": 401,\n        \"path\": \"/api/v1/wallets/9061cc56-a49e-46d2-9392-ba57742e7c81\",\n        \"method\": \"GET\"\n    },\n    \"error\": \"You are not authorized to access this wallet\",\n    \"timestamp\": \"2025-03-19T17:37:12.186Z\"\n}"
+						},
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{authToken}}"
+									}
+								],
+								"url": {
+									"raw": "{{walletBaseUrl}}/api/v1/wallets/{{walletId}}",
+									"host": [
+										"{{walletBaseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"wallets",
+										"{{walletId}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "287"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"11f-bWD3SOc0Ji9v5u9Pw9jTEME3RWo\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 19 Mar 2025 17:37:56 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"id\": \"05b5d6f7-66c0-4cd2-ac73-904ddf1037f9\",\n        \"userId\": \"a7e3f3db-b220-4229-8dcc-db7f6175c609\",\n        \"currency\": \"USD\",\n        \"balance\": \"0.00000000\",\n        \"createdAt\": \"2025-03-19T17:27:03.191Z\",\n        \"updatedAt\": \"2025-03-19T17:27:03.191Z\"\n    },\n    \"error\": null,\n    \"timestamp\": \"2025-03-19T17:37:56.447Z\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Wallet by Currency",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{walletBaseUrl}}/api/v1/wallets/user/{{userId}}/currency/EUR",
+							"host": [
+								"{{walletBaseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"wallets",
+								"user",
+								"{{userId}}",
+								"currency",
+								"EUR"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Error",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer "
+									}
+								],
+								"url": {
+									"raw": "http://localhost:3002/api/v1/wallets/user//currency/USD",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3002",
+									"path": [
+										"api",
+										"v1",
+										"wallets",
+										"user",
+										"",
+										"currency",
+										"USD"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "219"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"db-Uh3ZF8DU5FmS91AzfyzINieGbQw\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 19 Mar 2025 17:38:30 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"data\": {\n        \"statusCode\": 404,\n        \"path\": \"/api/v1/wallets/user/a7e3f3db-b220-4229-8dcc-db7f6175c609/currency/US\",\n        \"method\": \"GET\"\n    },\n    \"error\": \"Wallet for currency US not found\",\n    \"timestamp\": \"2025-03-19T17:38:30.718Z\"\n}"
+						},
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{authToken}}"
+									}
+								],
+								"url": {
+									"raw": "{{walletBaseUrl}}/api/v1/wallets/user/{{userId}}/currency/USD",
+									"host": [
+										"{{walletBaseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"wallets",
+										"user",
+										"{{userId}}",
+										"currency",
+										"USD"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "287"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"11f-mci9fn3uYifxBjoWl5t18xAbSrk\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 19 Mar 2025 17:38:55 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"id\": \"05b5d6f7-66c0-4cd2-ac73-904ddf1037f9\",\n        \"userId\": \"a7e3f3db-b220-4229-8dcc-db7f6175c609\",\n        \"currency\": \"USD\",\n        \"balance\": \"0.00000000\",\n        \"createdAt\": \"2025-03-19T17:27:03.191Z\",\n        \"updatedAt\": \"2025-03-19T17:27:03.191Z\"\n    },\n    \"error\": null,\n    \"timestamp\": \"2025-03-19T17:38:55.501Z\"\n}"
+						},
+						{
+							"name": "Error",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{authToken}}"
+									}
+								],
+								"url": {
+									"raw": "{{walletBaseUrl}}/api/v1/wallets/user/{{userId}}/currency/USD",
+									"host": [
+										"{{walletBaseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"wallets",
+										"user",
+										"{{userId}}",
+										"currency",
+										"USD"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "242"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"f2-U1PL5fi6aae9aj9hucpfSCx34f8\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 19 Mar 2025 17:43:19 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"data\": {\n        \"statusCode\": 401,\n        \"path\": \"/api/v1/wallets/user/958af662-50b5-4d0c-a041-4a8b5b60bbb1/currency/USD\",\n        \"method\": \"GET\"\n    },\n    \"error\": \"You are not authorized to access wallets for this user\",\n    \"timestamp\": \"2025-03-19T17:43:19.164Z\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Credit Wallet",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"walletId\": \"{{walletId}}\",\n    \"type\": \"CREDIT\",\n    \"amount\": 1000,\n    \"description\": \"Deposit funds\"\n}"
+						},
+						"url": {
+							"raw": "{{walletBaseUrl}}/api/v1/wallets/transaction",
+							"host": [
+								"{{walletBaseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"wallets",
+								"transaction"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer "
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"walletId\": \"\",\n    \"type\": \"CREDIT\",\n    \"amount\": 1000,\n    \"description\": \"Deposit funds\"\n}"
+								},
+								"url": {
+									"raw": "http://localhost:3002/api/v1/wallets/transaction",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3002",
+									"path": [
+										"api",
+										"v1",
+										"wallets",
+										"transaction"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "327"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"147-Nd5pjnmZQdhlybJA5e2YHTGQ32c\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 19 Mar 2025 17:40:25 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"walletId\": \"05b5d6f7-66c0-4cd2-ac73-904ddf1037f9\",\n        \"type\": \"CREDIT\",\n        \"amount\": 1000,\n        \"description\": \"Deposit funds\",\n        \"referenceId\": \"DEP-e16de302-8c7d-4478-9f2c-731ac32d002f\",\n        \"id\": \"07538438-335a-49fd-ae6c-0b9419f7f753\",\n        \"createdAt\": \"2025-03-19T17:40:25.327Z\"\n    },\n    \"error\": null,\n    \"timestamp\": \"2025-03-19T17:40:25.374Z\"\n}"
+						},
+						{
+							"name": "Error",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{authToken}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"walletId\": \"{{walletId}}\",\n    \"type\": \"CREDIT\",\n    \"amount\": 1000,\n    \"description\": \"Deposit funds\"\n}"
+								},
+								"url": {
+									"raw": "{{walletBaseUrl}}/api/v1/wallets/transaction",
+									"host": [
+										"{{walletBaseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"wallets",
+										"transaction"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "207"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"cf-5FOjmq7gtjw/KRJUvQMUSYgID7s\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 19 Mar 2025 17:41:20 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"data\": {\n        \"statusCode\": 401,\n        \"path\": \"/api/v1/wallets/transaction\",\n        \"method\": \"POST\"\n    },\n    \"error\": \"You are not authorized to perform transactions on this wallet\",\n    \"timestamp\": \"2025-03-19T17:41:20.827Z\"\n}"
+						},
+						{
+							"name": "Error",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{authToken}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"walletId\": \"{{walletId}}\",\n    \"type\": \"CREDIT\",\n    \"amount\": 0,\n    \"description\": \"Deposit funds\"\n}"
+								},
+								"url": {
+									"raw": "{{walletBaseUrl}}/api/v1/wallets/transaction",
+									"host": [
+										"{{walletBaseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"wallets",
+										"transaction"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "180"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"b4-PJ4O+E5o1uU1Eki/ZT1iuUr2zuI\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 19 Mar 2025 17:45:32 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"data\": {\n        \"statusCode\": 400,\n        \"path\": \"/api/v1/wallets/transaction\",\n        \"method\": \"POST\"\n    },\n    \"error\": [\n        \"amount must be a positive number\"\n    ],\n    \"timestamp\": \"2025-03-19T17:45:32.934Z\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Debit Wallet",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"walletId\": \"{{walletId}}\",\n    \"type\": \"DEBIT\",\n    \"amount\": 1000,\n    \"description\": \"Withdraw funds\"\n}"
+						},
+						"url": {
+							"raw": "{{walletBaseUrl}}/api/v1/wallets/transaction",
+							"host": [
+								"{{walletBaseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"wallets",
+								"transaction"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer "
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"walletId\": \"\",\n    \"type\": \"DEBIT\",\n    \"amount\": 1000,\n    \"description\": \"Withdraw funds\"\n}"
+								},
+								"url": {
+									"raw": "http://localhost:3002/api/v1/wallets/transaction",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3002",
+									"path": [
+										"api",
+										"v1",
+										"wallets",
+										"transaction"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "327"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"147-gejY4ymhIQPeNo+wV62f/1Dx99w\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 19 Mar 2025 17:44:18 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"walletId\": \"05b5d6f7-66c0-4cd2-ac73-904ddf1037f9\",\n        \"type\": \"DEBIT\",\n        \"amount\": 1000,\n        \"description\": \"Withdraw funds\",\n        \"referenceId\": \"WDR-4da4b162-3536-462e-ae8d-1d358ae0308c\",\n        \"id\": \"26a6db98-7eca-48d5-9029-8dd1939f3d81\",\n        \"createdAt\": \"2025-03-19T17:44:18.174Z\"\n    },\n    \"error\": null,\n    \"timestamp\": \"2025-03-19T17:44:18.192Z\"\n}"
+						},
+						{
+							"name": "Error",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{authToken}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"walletId\": \"{{walletId}}\",\n    \"type\": \"DEBIT\",\n    \"amount\": 1000,\n    \"description\": \"Withdraw funds\"\n}"
+								},
+								"url": {
+									"raw": "{{walletBaseUrl}}/api/v1/wallets/transaction",
+									"host": [
+										"{{walletBaseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"wallets",
+										"transaction"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "164"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"a4-kxlVY/NJE6YBz94aGuSOHAWujis\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 19 Mar 2025 17:44:58 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"data\": {\n        \"statusCode\": 400,\n        \"path\": \"/api/v1/wallets/transaction\",\n        \"method\": \"POST\"\n    },\n    \"error\": \"Insufficient funds\",\n    \"timestamp\": \"2025-03-19T17:44:58.091Z\"\n}"
+						},
+						{
+							"name": "Error",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{authToken}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"walletId\": \"{{walletId}}\",\n    \"type\": \"DEBIT\",\n    \"amount\": 1000,\n    \"description\": \"Withdraw funds\"\n}"
+								},
+								"url": {
+									"raw": "{{walletBaseUrl}}/api/v1/wallets/transaction",
+									"host": [
+										"{{walletBaseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"wallets",
+										"transaction"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "207"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"cf-5sih7qOVnXYs6jQfnoAZ7O3au/g\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 19 Mar 2025 17:46:58 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"data\": {\n        \"statusCode\": 401,\n        \"path\": \"/api/v1/wallets/transaction\",\n        \"method\": \"POST\"\n    },\n    \"error\": \"You are not authorized to perform transactions on this wallet\",\n    \"timestamp\": \"2025-03-19T17:46:58.412Z\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Process Transaction CREDIT/DEBIT",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"walletId\": \"{{walletId}}\",\n\t\"type\": \"CREDIT\",\n\t\"amount\": 1000,\n\t\"description\": \"Initial deposit\"\n}"
+						},
+						"url": {
+							"raw": "{{walletBaseUrl}}/api/v1/wallets/transaction",
+							"host": [
+								"{{walletBaseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"wallets",
+								"transaction"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{authToken}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"walletId\": \"{{walletId}}\",\n\t\"type\": \"CREDIT\",\n\t\"amount\": 1000,\n\t\"description\": \"Initial deposit\"\n}"
+								},
+								"url": {
+									"raw": "{{walletBaseUrl}}/api/v1/wallets/transaction",
+									"host": [
+										"{{walletBaseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"wallets",
+										"transaction"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "329"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"149-pgK6bcPcZGv9yuLrfOyLBv12M30\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 19 Mar 2025 17:48:14 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"walletId\": \"05b5d6f7-66c0-4cd2-ac73-904ddf1037f9\",\n        \"type\": \"CREDIT\",\n        \"amount\": 1000,\n        \"description\": \"Initial deposit\",\n        \"referenceId\": \"DEP-f0465d09-c36e-4a3b-aec3-b3698d585735\",\n        \"id\": \"4dff5328-3bf3-4b0e-89a8-21c30f62c9c6\",\n        \"createdAt\": \"2025-03-19T17:48:14.225Z\"\n    },\n    \"error\": null,\n    \"timestamp\": \"2025-03-19T17:48:14.257Z\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Rates",
+			"item": [
+				{
+					"name": "Get Exchange Rates",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{rateBaseUrl}}/api/v1/rates",
+							"host": [
+								"{{rateBaseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"rates"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "limit",
+									"value": "5",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Sucess",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{rateBaseUrl}}/api/v1/rates",
+									"host": [
+										"{{rateBaseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"rates"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "1",
+											"disabled": true
+										},
+										{
+											"key": "limit",
+											"value": "5",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "2433"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"981-Thltbf403zjGhy4uA2Vc7GvS3ho\""
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 23 Mar 2025 17:54:39 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"items\": [\n            {\n                \"id\": \"d47f269a-944f-48ff-89fc-53313b1de35b\",\n                \"baseCurrency\": \"CAD\",\n                \"targetCurrency\": \"AED\",\n                \"rate\": \"2.5606000000\",\n                \"timestamp\": \"2025-03-23T00:00:01.000Z\",\n                \"createdAt\": \"2025-03-22T21:29:28.082Z\",\n                \"updatedAt\": \"2025-03-23T16:53:19.295Z\"\n            },\n            {\n                \"id\": \"6798544c-acb0-4eaf-af27-9412af76022e\",\n                \"baseCurrency\": \"CAD\",\n                \"targetCurrency\": \"AFN\",\n                \"rate\": \"49.5546000000\",\n                \"timestamp\": \"2025-03-23T00:00:01.000Z\",\n                \"createdAt\": \"2025-03-22T21:29:28.081Z\",\n                \"updatedAt\": \"2025-03-23T16:53:19.295Z\"\n            },\n            {\n                \"id\": \"39f52424-2bbe-4c89-b6d3-3b17ea504db3\",\n                \"baseCurrency\": \"CAD\",\n                \"targetCurrency\": \"ALL\",\n                \"rate\": \"63.4758000000\",\n                \"timestamp\": \"2025-03-23T00:00:01.000Z\",\n                \"createdAt\": \"2025-03-22T21:29:28.082Z\",\n                \"updatedAt\": \"2025-03-23T16:53:19.295Z\"\n            },\n            {\n                \"id\": \"ad0ab8ab-6c27-46f1-96f4-e11ea39410dc\",\n                \"baseCurrency\": \"CAD\",\n                \"targetCurrency\": \"AMD\",\n                \"rate\": \"273.7168000000\",\n                \"timestamp\": \"2025-03-23T00:00:01.000Z\",\n                \"createdAt\": \"2025-03-22T21:29:28.082Z\",\n                \"updatedAt\": \"2025-03-23T16:53:19.296Z\"\n            },\n            {\n                \"id\": \"cd3358e9-db3c-49cf-a719-7ca292612789\",\n                \"baseCurrency\": \"CAD\",\n                \"targetCurrency\": \"ANG\",\n                \"rate\": \"1.2480000000\",\n                \"timestamp\": \"2025-03-23T00:00:01.000Z\",\n                \"createdAt\": \"2025-03-22T21:29:28.083Z\",\n                \"updatedAt\": \"2025-03-23T16:53:19.296Z\"\n            },\n            {\n                \"id\": \"c8d6216d-e7dc-4154-bc36-953a8a901765\",\n                \"baseCurrency\": \"CAD\",\n                \"targetCurrency\": \"AOA\",\n                \"rate\": \"651.8229000000\",\n                \"timestamp\": \"2025-03-23T00:00:01.000Z\",\n                \"createdAt\": \"2025-03-22T21:29:28.084Z\",\n                \"updatedAt\": \"2025-03-23T16:53:19.296Z\"\n            },\n            {\n                \"id\": \"1119b0df-0724-4018-98b2-9b69951b942a\",\n                \"baseCurrency\": \"CAD\",\n                \"targetCurrency\": \"ARS\",\n                \"rate\": \"746.9561000000\",\n                \"timestamp\": \"2025-03-23T00:00:01.000Z\",\n                \"createdAt\": \"2025-03-22T21:29:28.082Z\",\n                \"updatedAt\": \"2025-03-23T16:53:19.296Z\"\n            },\n            {\n                \"id\": \"636a3dc8-9946-413d-82d7-0e7e2d3c4901\",\n                \"baseCurrency\": \"CAD\",\n                \"targetCurrency\": \"AUD\",\n                \"rate\": \"1.1100000000\",\n                \"timestamp\": \"2025-03-23T00:00:01.000Z\",\n                \"createdAt\": \"2025-03-22T21:29:28.083Z\",\n                \"updatedAt\": \"2025-03-23T16:53:19.296Z\"\n            },\n            {\n                \"id\": \"71b05b63-e169-441f-99ca-63cf4f19c67c\",\n                \"baseCurrency\": \"CAD\",\n                \"targetCurrency\": \"AWG\",\n                \"rate\": \"1.2480000000\",\n                \"timestamp\": \"2025-03-23T00:00:01.000Z\",\n                \"createdAt\": \"2025-03-22T21:29:28.118Z\",\n                \"updatedAt\": \"2025-03-23T16:53:19.295Z\"\n            },\n            {\n                \"id\": \"5bec7e88-0b3b-4260-bef2-4027bbded077\",\n                \"baseCurrency\": \"CAD\",\n                \"targetCurrency\": \"AZN\",\n                \"rate\": \"1.1856000000\",\n                \"timestamp\": \"2025-03-23T00:00:01.000Z\",\n                \"createdAt\": \"2025-03-22T21:29:28.087Z\",\n                \"updatedAt\": \"2025-03-23T16:53:19.299Z\"\n            }\n        ],\n        \"total\": 810,\n        \"page\": 1,\n        \"limit\": 10,\n        \"totalPages\": 81\n    },\n    \"error\": null,\n    \"timestamp\": \"2025-03-23T17:54:39.472Z\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Exchange Rate Pair",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{rateBaseUrl}}/api/v1/rates/USD/EUR",
+							"host": [
+								"{{rateBaseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"rates",
+								"USD",
+								"EUR"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{rateBaseUrl}}/api/v1/rates/USD/NGN",
+									"host": [
+										"{{rateBaseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"rates",
+										"USD",
+										"NGN"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "307"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"133-lH4qqJrcoFcxDAgwr7LhD+vuqmw\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 19 Mar 2025 17:51:23 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"id\": \"c9a67183-85f2-437a-97a9-c85b2161dfc4\",\n        \"baseCurrency\": \"USD\",\n        \"targetCurrency\": \"NGN\",\n        \"rate\": \"1537.0342000000\",\n        \"timestamp\": \"2025-03-19T00:00:01.000Z\",\n        \"createdAt\": \"2025-03-19T17:07:43.849Z\",\n        \"updatedAt\": \"2025-03-19T17:13:09.158Z\"\n    },\n    \"error\": null,\n    \"timestamp\": \"2025-03-19T17:51:23.627Z\"\n}"
+						},
+						{
+							"name": "Error",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{rateBaseUrl}}/api/v1/rates/USD/EUR",
+									"host": [
+										"{{rateBaseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"rates",
+										"USD",
+										"EUR"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "187"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"bb-hxs+kgur1qwVRG5CFqvgrskikIw\""
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 20 Mar 2025 14:27:58 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"data\": {\n        \"statusCode\": 404,\n        \"path\": \"/api/v1/rates/USD/EU\",\n        \"method\": \"GET\"\n    },\n    \"error\": \"Currency pair USD/EU is not available for trading\",\n    \"timestamp\": \"2025-03-20T14:27:58.707Z\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Transactions",
+			"item": [
+				{
+					"name": "Create Order",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"orderId\", pm.response.json().data.id);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"userId\": \"{{userId}}\",\n\t\"type\": \"SELL\",\n\t\"fromCurrency\": \"USD\",\n\t\"toCurrency\": \"EUR\",\n\t\"fromAmount\": 100\n}"
+						},
+						"url": {
+							"raw": "{{transactionBaseUrl}}/api/v1/transactions/orders",
+							"host": [
+								"{{transactionBaseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"transactions",
+								"orders"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{authToken}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"userId\": \"{{userId}}\",\n\t\"type\": \"BUY\",\n\t\"fromCurrency\": \"USD\",\n\t\"toCurrency\": \"NGN\",\n\t\"fromAmount\": 100\n}"
+								},
+								"url": {
+									"raw": "{{transactionBaseUrl}}/api/v1/transactions/orders",
+									"host": [
+										"{{transactionBaseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"transactions",
+										"orders"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "403"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"193-3I3+H1mRsXMBzyxkxZ6nd5rMB/M\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 19 Mar 2025 17:57:32 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"id\": \"c3fc266e-a221-4153-8124-3f49a7736a6d\",\n        \"userId\": \"a7e3f3db-b220-4229-8dcc-db7f6175c609\",\n        \"type\": \"BUY\",\n        \"fromCurrency\": \"USD\",\n        \"toCurrency\": \"NGN\",\n        \"fromAmount\": \"100.00000000\",\n        \"toAmount\": \"153703.42000000\",\n        \"rate\": \"1537.0342000000\",\n        \"status\": \"COMPLETED\",\n        \"createdAt\": \"2025-03-19T17:57:32.204Z\",\n        \"updatedAt\": \"2025-03-19T17:57:32.211Z\"\n    },\n    \"error\": null,\n    \"timestamp\": \"2025-03-19T17:57:32.327Z\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get User Orders",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"orderId\", pm.response.json().data.items[0].id);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{transactionBaseUrl}}/api/v1/transactions/user/{{userId}}/orders",
+							"host": [
+								"{{transactionBaseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"transactions",
+								"user",
+								"{{userId}}",
+								"orders"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{authToken}}"
+									}
+								],
+								"url": {
+									"raw": "{{transactionBaseUrl}}/api/v1/transactions/user/{{userId}}/orders",
+									"host": [
+										"{{transactionBaseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"transactions",
+										"user",
+										"{{userId}}",
+										"orders"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1098"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"44a-9fPLho2fpE0YKq5gBJq0rwdkxIM\""
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 23 Mar 2025 17:55:45 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"items\": [\n            {\n                \"id\": \"063feb13-d72f-467f-95cd-5773ab93d27d\",\n                \"userId\": \"c6222a0e-36d5-4d52-aeeb-f3d3485afaa6\",\n                \"type\": \"SELL\",\n                \"fromCurrency\": \"EUR\",\n                \"toCurrency\": \"CAD\",\n                \"fromAmount\": \"100.00000000\",\n                \"toAmount\": \"155.26000000\",\n                \"rate\": \"1.5526000000\",\n                \"status\": \"COMPLETED\",\n                \"createdAt\": \"2025-03-22T21:36:00.691Z\",\n                \"updatedAt\": \"2025-03-22T21:36:00.693Z\"\n            },\n            {\n                \"id\": \"56c503ad-8994-4d12-a3b4-83e3e25bf6f7\",\n                \"userId\": \"c6222a0e-36d5-4d52-aeeb-f3d3485afaa6\",\n                \"type\": \"SELL\",\n                \"fromCurrency\": \"EUR\",\n                \"toCurrency\": \"CAD\",\n                \"fromAmount\": \"100.00000000\",\n                \"toAmount\": \"155.26000000\",\n                \"rate\": \"1.5526000000\",\n                \"status\": \"COMPLETED\",\n                \"createdAt\": \"2025-03-22T21:35:58.791Z\",\n                \"updatedAt\": \"2025-03-22T21:35:58.798Z\"\n            },\n            {\n                \"id\": \"76feee94-6c86-4fd6-a7c2-f0713fd08a12\",\n                \"userId\": \"c6222a0e-36d5-4d52-aeeb-f3d3485afaa6\",\n                \"type\": \"SELL\",\n                \"fromCurrency\": \"EUR\",\n                \"toCurrency\": \"CAD\",\n                \"fromAmount\": \"100.00000000\",\n                \"toAmount\": \"155.26000000\",\n                \"rate\": \"1.5526000000\",\n                \"status\": \"FAILED\",\n                \"createdAt\": \"2025-03-22T21:35:33.251Z\",\n                \"updatedAt\": \"2025-03-22T21:35:33.305Z\"\n            }\n        ],\n        \"total\": 3,\n        \"page\": 1,\n        \"limit\": 10,\n        \"totalPages\": 1\n    },\n    \"error\": null,\n    \"timestamp\": \"2025-03-23T17:55:45.393Z\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Order by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{transactionBaseUrl}}/api/v1/transactions/orders/{{orderId}}",
+							"host": [
+								"{{transactionBaseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"transactions",
+								"orders",
+								"{{orderId}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Error",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{authToken}}"
+									}
+								],
+								"url": {
+									"raw": "{{transactionBaseUrl}}/api/v1/transactions/orders/{{orderId}}",
+									"host": [
+										"{{transactionBaseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"transactions",
+										"orders",
+										"{{orderId}}"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "197"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"c5-aDNICC4AmhjRXqbryyZ/9pvzgP8\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 19 Mar 2025 18:08:44 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"data\": {\n        \"statusCode\": 404,\n        \"path\": \"/api/v1/transactions/orders/c3fc266e-a221-4153-8124-3f49a7736a6e\",\n        \"method\": \"GET\"\n    },\n    \"error\": \"Order not found\",\n    \"timestamp\": \"2025-03-19T18:08:44.194Z\"\n}"
+						},
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{authToken}}"
+									}
+								],
+								"url": {
+									"raw": "{{transactionBaseUrl}}/api/v1/transactions/orders/{{orderId}}",
+									"host": [
+										"{{transactionBaseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"transactions",
+										"orders",
+										"{{orderId}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "403"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"193-u9dPmnuzD7IP00ncZ2SNSrlTa00\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 19 Mar 2025 18:09:23 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"id\": \"c3fc266e-a221-4153-8124-3f49a7736a6d\",\n        \"userId\": \"a7e3f3db-b220-4229-8dcc-db7f6175c609\",\n        \"type\": \"BUY\",\n        \"fromCurrency\": \"USD\",\n        \"toCurrency\": \"NGN\",\n        \"fromAmount\": \"100.00000000\",\n        \"toAmount\": \"153703.42000000\",\n        \"rate\": \"1537.0342000000\",\n        \"status\": \"COMPLETED\",\n        \"createdAt\": \"2025-03-19T17:57:32.204Z\",\n        \"updatedAt\": \"2025-03-19T17:57:32.211Z\"\n    },\n    \"error\": null,\n    \"timestamp\": \"2025-03-19T18:09:23.969Z\"\n}"
+						},
+						{
+							"name": "Error",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{authToken}}"
+									}
+								],
+								"url": {
+									"raw": "{{transactionBaseUrl}}/api/v1/transactions/orders/{{orderId}}",
+									"host": [
+										"{{transactionBaseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"transactions",
+										"orders",
+										"{{orderId}}"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "225"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"e1-eqvRnUXXq+CJIk5kR7Bho/HJauw\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 19 Mar 2025 18:12:15 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"data\": {\n        \"statusCode\": 401,\n        \"path\": \"/api/v1/transactions/orders/761d5080-ddbf-44be-a09c-9d35261dc8f4\",\n        \"method\": \"GET\"\n    },\n    \"error\": \"You are not authorized to access this order\",\n    \"timestamp\": \"2025-03-19T18:12:15.263Z\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Order Transactions",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{transactionBaseUrl}}/api/v1/transactions/orders/{{orderId}}/transactions",
+							"host": [
+								"{{transactionBaseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"transactions",
+								"orders",
+								"{{orderId}}",
+								"transactions"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{authToken}}"
+									}
+								],
+								"url": {
+									"raw": "{{transactionBaseUrl}}/api/v1/transactions/orders/{{orderId}}/transactions",
+									"host": [
+										"{{transactionBaseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"transactions",
+										"orders",
+										"{{orderId}}",
+										"transactions"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "735"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"2df-kU2Qms05uTE5YISRGiUbWnIGOoU\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 19 Mar 2025 18:13:10 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": [\n        {\n            \"id\": \"ca77600d-c727-45ca-a845-4a3c7cbce6db\",\n            \"orderId\": \"c3fc266e-a221-4153-8124-3f49a7736a6d\",\n            \"fromWalletId\": \"05b5d6f7-66c0-4cd2-ac73-904ddf1037f9\",\n            \"toWalletId\": \"09268dd0-c62f-44bd-8819-141bb827a180\",\n            \"fromAmount\": \"100.00000000\",\n            \"toAmount\": \"153703.42000000\",\n            \"rate\": \"1537.0342000000\",\n            \"createdAt\": \"2025-03-19T17:57:32.211Z\",\n            \"order\": {\n                \"id\": \"c3fc266e-a221-4153-8124-3f49a7736a6d\",\n                \"userId\": \"a7e3f3db-b220-4229-8dcc-db7f6175c609\",\n                \"type\": \"BUY\",\n                \"fromCurrency\": \"USD\",\n                \"toCurrency\": \"NGN\",\n                \"fromAmount\": \"100.00000000\",\n                \"toAmount\": \"153703.42000000\",\n                \"rate\": \"1537.0342000000\",\n                \"status\": \"COMPLETED\",\n                \"createdAt\": \"2025-03-19T17:57:32.204Z\",\n                \"updatedAt\": \"2025-03-19T17:57:32.211Z\"\n            }\n        }\n    ],\n    \"error\": null,\n    \"timestamp\": \"2025-03-19T18:13:10.571Z\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Notification",
+			"item": [
+				{
+					"name": "Get User Notifications",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"notificationId\", pm.response.json().data.items[1].id)"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{notificationBaseUrl}}/api/v1/notifications/user/{{userId}}",
+							"host": [
+								"{{notificationBaseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"notifications",
+								"user",
+								"{{userId}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{authToken}}"
+									}
+								],
+								"url": {
+									"raw": "{{notificationBaseUrl}}/api/v1/notifications/user/{{userId}}",
+									"host": [
+										"{{notificationBaseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"notifications",
+										"user",
+										"{{userId}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "3713"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"e81-8tpxTe17BkKamp6ZoVZGv7vKQaw\""
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 23 Mar 2025 17:08:20 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"items\": [\n            {\n                \"id\": \"ba2d378b-0a6e-4318-b7ae-9e2ac2eee6a2\",\n                \"userId\": \"c6222a0e-36d5-4d52-aeeb-f3d3485afaa6\",\n                \"type\": \"ORDER\",\n                \"title\": \"Order COMPLETED\",\n                \"message\": \"Your SELL order from EUR to CAD has been completed\",\n                \"isRead\": false,\n                \"metadata\": {\n                    \"rate\": \"1.5526000000\",\n                    \"toAmount\": \"155.26000000\",\n                    \"fromAmount\": \"100.00000000\"\n                },\n                \"createdAt\": \"2025-03-22T21:36:00.730Z\"\n            },\n            {\n                \"id\": \"30911444-4676-4fbf-af28-53b509668b16\",\n                \"userId\": \"c6222a0e-36d5-4d52-aeeb-f3d3485afaa6\",\n                \"type\": \"TRANSACTION\",\n                \"title\": \"DEBIT Transaction\",\n                \"message\": \"You have sent 100.00000000 EUR\",\n                \"isRead\": false,\n                \"metadata\": {\n                    \"orderId\": \"063feb13-d72f-467f-95cd-5773ab93d27d\",\n                    \"toAmount\": \"155.26000000\",\n                    \"fromAmount\": \"100.00000000\",\n                    \"toCurrency\": \"CAD\",\n                    \"fromCurrency\": \"EUR\"\n                },\n                \"createdAt\": \"2025-03-22T21:36:00.730Z\"\n            },\n            {\n                \"id\": \"a6a71d8c-1364-4378-81f2-14e8b596aac3\",\n                \"userId\": \"c6222a0e-36d5-4d52-aeeb-f3d3485afaa6\",\n                \"type\": \"WALLET\",\n                \"title\": \"Wallet CREDIT\",\n                \"message\": \"Your CAD wallet has been credit\",\n                \"isRead\": false,\n                \"metadata\": {\n                    \"amount\": 155.26,\n                    \"walletId\": \"9d508ed1-5e70-49e6-ab76-993055b10a04\",\n                    \"transactionId\": \"2aa6ac95-fde2-4a85-9f14-9054df5da227\"\n                },\n                \"createdAt\": \"2025-03-22T21:36:00.722Z\"\n            },\n            {\n                \"id\": \"5e5af654-d9a7-4d87-8901-7444a76c16bb\",\n                \"userId\": \"c6222a0e-36d5-4d52-aeeb-f3d3485afaa6\",\n                \"type\": \"WALLET\",\n                \"title\": \"Wallet DEBIT\",\n                \"message\": \"Your EUR wallet has been debit\",\n                \"isRead\": false,\n                \"metadata\": {\n                    \"amount\": 100,\n                    \"walletId\": \"01678eb6-211e-4eb1-ad3c-ec52bb74f9bf\",\n                    \"transactionId\": \"38f2d637-b4a4-43ad-b5f2-b52cf10efcb2\"\n                },\n                \"createdAt\": \"2025-03-22T21:36:00.712Z\"\n            },\n            {\n                \"id\": \"f7570728-fdf8-4584-9ee8-d5f2a8f6ee38\",\n                \"userId\": \"c6222a0e-36d5-4d52-aeeb-f3d3485afaa6\",\n                \"type\": \"ORDER\",\n                \"title\": \"Order COMPLETED\",\n                \"message\": \"Your SELL order from EUR to CAD has been completed\",\n                \"isRead\": false,\n                \"metadata\": {\n                    \"rate\": \"1.5526000000\",\n                    \"toAmount\": \"155.26000000\",\n                    \"fromAmount\": \"100.00000000\"\n                },\n                \"createdAt\": \"2025-03-22T21:35:58.935Z\"\n            },\n            {\n                \"id\": \"1b7cde7e-5b35-46bd-a68a-d5a951e803eb\",\n                \"userId\": \"c6222a0e-36d5-4d52-aeeb-f3d3485afaa6\",\n                \"type\": \"TRANSACTION\",\n                \"title\": \"DEBIT Transaction\",\n                \"message\": \"You have sent 100.00000000 EUR\",\n                \"isRead\": false,\n                \"metadata\": {\n                    \"orderId\": \"56c503ad-8994-4d12-a3b4-83e3e25bf6f7\",\n                    \"toAmount\": \"155.26000000\",\n                    \"fromAmount\": \"100.00000000\",\n                    \"toCurrency\": \"CAD\",\n                    \"fromCurrency\": \"EUR\"\n                },\n                \"createdAt\": \"2025-03-22T21:35:58.934Z\"\n            },\n            {\n                \"id\": \"96ba53c0-d71c-4a3d-9c6b-a6bbd46a1faf\",\n                \"userId\": \"c6222a0e-36d5-4d52-aeeb-f3d3485afaa6\",\n                \"type\": \"WALLET\",\n                \"title\": \"Wallet CREDIT\",\n                \"message\": \"Your CAD wallet has been credit\",\n                \"isRead\": false,\n                \"metadata\": {\n                    \"amount\": 155.26,\n                    \"walletId\": \"9d508ed1-5e70-49e6-ab76-993055b10a04\",\n                    \"transactionId\": \"67bb05af-5bf0-4471-aaa9-efe3dbe8de27\"\n                },\n                \"createdAt\": \"2025-03-22T21:35:58.901Z\"\n            },\n            {\n                \"id\": \"6d741ade-a770-42e0-aaa5-f1663114171c\",\n                \"userId\": \"c6222a0e-36d5-4d52-aeeb-f3d3485afaa6\",\n                \"type\": \"WALLET\",\n                \"title\": \"Wallet DEBIT\",\n                \"message\": \"Your EUR wallet has been debit\",\n                \"isRead\": false,\n                \"metadata\": {\n                    \"amount\": 100,\n                    \"walletId\": \"01678eb6-211e-4eb1-ad3c-ec52bb74f9bf\",\n                    \"transactionId\": \"61f06ea7-a45e-4f3d-8ed1-837866753f00\"\n                },\n                \"createdAt\": \"2025-03-22T21:35:58.896Z\"\n            },\n            {\n                \"id\": \"a5224909-0992-4697-aa3d-03ff70e181a7\",\n                \"userId\": \"c6222a0e-36d5-4d52-aeeb-f3d3485afaa6\",\n                \"type\": \"WALLET\",\n                \"title\": \"Wallet CREDIT\",\n                \"message\": \"Your EUR wallet has been credit\",\n                \"isRead\": false,\n                \"metadata\": {\n                    \"amount\": 1000,\n                    \"walletId\": \"01678eb6-211e-4eb1-ad3c-ec52bb74f9bf\",\n                    \"transactionId\": \"cffe8c22-8069-4089-8b58-46870012b831\"\n                },\n                \"createdAt\": \"2025-03-22T21:35:41.235Z\"\n            },\n            {\n                \"id\": \"577a0aab-7314-4dce-84c7-5459f226fea4\",\n                \"userId\": \"c6222a0e-36d5-4d52-aeeb-f3d3485afaa6\",\n                \"type\": \"ORDER\",\n                \"title\": \"Order FAILED\",\n                \"message\": \"Your SELL order from EUR to CAD has been failed\",\n                \"isRead\": false,\n                \"metadata\": {\n                    \"error\": \"Insufficient funds\"\n                },\n                \"createdAt\": \"2025-03-22T21:35:33.335Z\"\n            }\n        ],\n        \"total\": 12,\n        \"page\": 1,\n        \"limit\": 10,\n        \"totalPages\": 2\n    },\n    \"error\": null,\n    \"timestamp\": \"2025-03-23T17:08:20.122Z\"\n}"
+						},
+						{
+							"name": "Error",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{authToken}}"
+									}
+								],
+								"url": {
+									"raw": "{{notificationBaseUrl}}/api/v1/notifications/user/{{userId}}",
+									"host": [
+										"{{notificationBaseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"notifications",
+										"user",
+										"{{userId}}"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "241"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"f1-R0QisdvL3U6y9/F/M1TUFLXcl44\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 19 Mar 2025 19:06:35 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"data\": {\n        \"statusCode\": 401,\n        \"path\": \"/api/v1/notifications/user/958af662-50b5-4d0c-a041-4a8b5b60bbb1\",\n        \"method\": \"GET\"\n    },\n    \"error\": \"You are not authorized to access notifications for this user\",\n    \"timestamp\": \"2025-03-19T19:06:35.427Z\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Mark Notification as Read",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{notificationBaseUrl}}/api/v1/notifications/{{notificationId}}/read",
+							"host": [
+								"{{notificationBaseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"notifications",
+								"{{notificationId}}",
+								"read"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3001",
+			"type": "string"
+		},
+		{
+			"key": "walletBaseUrl",
+			"value": "http://localhost:3002",
+			"type": "string"
+		},
+		{
+			"key": "rateBaseUrl",
+			"value": "http://localhost:3003",
+			"type": "string"
+		},
+		{
+			"key": "transactionBaseUrl",
+			"value": "http://localhost:3004",
+			"type": "string"
+		},
+		{
+			"key": "notificationBaseUrl",
+			"value": "http://localhost:3005",
+			"type": "string"
+		},
+		{
+			"key": "authToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "userId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "walletId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "notificationId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "orderId",
+			"value": "",
+			"type": "default"
+		}
+	]
+}
