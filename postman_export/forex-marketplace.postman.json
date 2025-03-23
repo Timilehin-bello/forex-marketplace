@@ -1,0 +1,468 @@
+{
+  "info": {
+    "name": "Forex Marketplace API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "123456"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"password123\",\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3001/api/v1/auth/register",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3001",
+              "path": ["api", "v1", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3001/api/v1/auth/login",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3001",
+              "path": ["api", "v1", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Get User Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3001/api/v1/users/profile",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3001",
+              "path": ["api", "v1", "users", "profile"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Wallets",
+      "item": [
+        {
+          "name": "Create Wallet",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"userId\": \"{{user_id}}\",\n    \"currency\": \"USD\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3002/api/v1/wallets",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3002",
+              "path": ["api", "v1", "wallets"]
+            }
+          }
+        },
+        {
+          "name": "Get Wallet by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3002/api/v1/wallets/{{wallet_id}}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3002",
+              "path": ["api", "v1", "wallets", "{{wallet_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Get User Wallets",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3002/api/v1/wallets/user/{{user_id}}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3002",
+              "path": ["api", "v1", "wallets", "user", "{{user_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Wallet by Currency",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3002/api/v1/wallets/user/{{user_id}}/currency/USD",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3002",
+              "path": [
+                "api",
+                "v1",
+                "wallets",
+                "user",
+                "{{user_id}}",
+                "currency",
+                "USD"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Credit Wallet",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"walletId\": \"{{wallet_id}}\",\n    \"type\": \"CREDIT\",\n    \"amount\": 1000,\n    \"description\": \"Deposit funds\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3002/api/v1/wallets/transaction",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3002",
+              "path": ["api", "v1", "wallets", "transaction"]
+            }
+          }
+        },
+        {
+          "name": "Debit Wallet",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"walletId\": \"{{wallet_id}}\",\n    \"type\": \"DEBIT\",\n    \"amount\": 100,\n    \"description\": \"Withdraw funds\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3002/api/v1/wallets/transaction",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3002",
+              "path": ["api", "v1", "wallets", "transaction"]
+            }
+          }
+        },
+        {
+          "name": "Get Wallet Transactions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3002/api/v1/wallets/{{wallet_id}}/transactions",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3002",
+              "path": ["api", "v1", "wallets", "{{wallet_id}}", "transactions"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Transactions",
+      "item": [
+        {
+          "name": "Create Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"userId\": \"{{user_id}}\",\n    \"type\": \"BUY\",\n    \"fromCurrency\": \"USD\",\n    \"toCurrency\": \"EUR\",\n    \"fromAmount\": 100\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3004/api/v1/transactions/orders",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3004",
+              "path": ["api", "v1", "transactions", "orders"]
+            }
+          }
+        },
+        {
+          "name": "Get Order by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3004/api/v1/transactions/orders/{{order_id}}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3004",
+              "path": ["api", "v1", "transactions", "orders", "{{order_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Get User Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3004/api/v1/transactions/user/{{user_id}}/orders",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3004",
+              "path": [
+                "api",
+                "v1",
+                "transactions",
+                "user",
+                "{{user_id}}",
+                "orders"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Order Transactions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3004/api/v1/transactions/orders/{{order_id}}/transactions",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3004",
+              "path": [
+                "api",
+                "v1",
+                "transactions",
+                "orders",
+                "{{order_id}}",
+                "transactions"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rates",
+      "item": [
+        {
+          "name": "Get Exchange Rates",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3003/api/v1/rates",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3003",
+              "path": ["api", "v1", "rates"]
+            }
+          }
+        },
+        {
+          "name": "Get Exchange Rate Pair",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3003/api/v1/rates/USD/EUR",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3003",
+              "path": ["api", "v1", "rates", "USD", "EUR"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "Get User Notifications",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3005/api/v1/notifications/user/{{user_id}}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3005",
+              "path": ["api", "v1", "notifications", "user", "{{user_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Mark Notification as Read",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"notificationId\": \"{{notification_id}}\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3005/api/v1/notifications/read",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3005",
+              "path": ["api", "v1", "notifications", "read"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "jwt_token",
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyOTYwODFmNS04MDlmLTQ5MjktOTA0ZS1hMGRhNGVmNGJlMTIiLCJlbWFpbCI6InVzZXJAZXhhbXBsZS5jb20iLCJpYXQiOjE3MTY3NTgzODMsImV4cCI6MTcxNzM2MzE4M30.h_4t4RYkmC3O1MYz9hHKn1o0KiXYmzsrpDu68_Axj3Q"
+    },
+    {
+      "key": "user_id",
+      "value": "296081f5-809f-4929-904e-a0da4ef4be12"
+    },
+    {
+      "key": "wallet_id",
+      "value": "4d485f75-69a3-4032-a248-5ff0f98e1d8a"
+    },
+    {
+      "key": "order_id",
+      "value": "5757b280-aeb0-466f-b6fc-262b44261300"
+    },
+    {
+      "key": "notification_id",
+      "value": ""
+    }
+  ]
+}

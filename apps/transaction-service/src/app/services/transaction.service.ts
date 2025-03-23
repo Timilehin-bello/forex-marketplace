@@ -11,8 +11,12 @@ import { firstValueFrom, Observable } from 'rxjs'; // Add Observable import
 import { Order } from '../entities/order.entity';
 import { Transaction } from '../entities/transaction.entity';
 import { CreateOrderDto } from '../dtos/create-order.dto';
-import { LoggerService } from '@forex-marketplace/shared-utils';
-import { OrderStatus, OrderType } from '@forex-marketplace/shared-types';
+import { LoggerService, CacheService } from '@forex-marketplace/shared-utils';
+import {
+  OrderStatus,
+  PaginatedResult,
+  PaginationHelper,
+} from '@forex-marketplace/shared-types';
 import {
   NotificationPattern,
   TransactionNotificationEvent,
@@ -20,27 +24,66 @@ import {
 } from '@forex-marketplace/message-queue';
 
 // Define interfaces for gRPC services with Observable return types
+interface RateRequest {
+  baseCurrency: string;
+  targetCurrency: string;
+}
+
+interface RateResponse {
+  baseCurrency: string;
+  targetCurrency: string;
+  rate: number;
+  timestamp: string;
+}
+
+type EmptyRequest = Record<string, never>;
+
+interface AllRatesResponse {
+  rates: RateResponse[];
+}
+
 interface RateService {
-  getRate(data: {
-    baseCurrency: string;
-    targetCurrency: string;
-  }): Observable<any>;
-  getAllRates(data: object): Observable<any>;
+  getRate(data: RateRequest): Observable<RateResponse>;
+  getAllRates(data: EmptyRequest): Observable<AllRatesResponse>;
 }
 
 interface WalletService {
   getWalletByUserIdAndCurrency(data: {
     userId: string;
     currency: string;
-  }): Observable<any>;
-  processTransaction(data: any): Observable<any>;
-  createWallet(data: { userId: string; currency: string }): Observable<any>;
+  }): Observable<{ id: string; balance: number; currency: string }>;
+  processTransaction(data: {
+    walletId: string;
+    type: 'DEBIT' | 'CREDIT';
+    amount: number;
+    description: string;
+    referenceId: string;
+  }): Observable<{ success: boolean; transactionId: string }>;
+  createWallet(data: {
+    userId: string;
+    currency: string;
+  }): Observable<{ walletId: string; currency: string }>;
+}
+
+interface UserService {
+  getUserById(data: { id: string }): Observable<{
+    id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    isActive: boolean;
+    createdAt: string;
+    updatedAt: string;
+  }>;
 }
 
 @Injectable()
 export class TransactionService implements OnModuleInit {
   private rateService: RateService;
   private walletServiceClient: WalletService;
+  private userServiceClient: UserService;
+  private readonly ORDER_CACHE_TTL = 600; // 10 minutes
+  private readonly USER_ORDERS_CACHE_TTL = 300; // 5 minutes
 
   constructor(
     @InjectRepository(Order)
@@ -49,8 +92,10 @@ export class TransactionService implements OnModuleInit {
     private readonly transactionRepository: Repository<Transaction>,
     private readonly dataSource: DataSource,
     private readonly logger: LoggerService,
+    private readonly cacheService: CacheService,
     @Inject('RATE_SERVICE') private readonly rateClient: ClientGrpc,
     @Inject('WALLET_SERVICE') private readonly walletClient: ClientGrpc,
+    @Inject('USER_SERVICE') private readonly userClient: ClientGrpc,
     @Inject('NOTIFICATION_SERVICE')
     private readonly notificationClient: ClientProxy
   ) {}
@@ -59,31 +104,61 @@ export class TransactionService implements OnModuleInit {
     this.rateService = this.rateClient.getService<RateService>('RateService');
     this.walletServiceClient =
       this.walletClient.getService<WalletService>('WalletService');
+    this.userServiceClient =
+      this.userClient.getService<UserService>('UserService');
+    this.logger.log('gRPC clients initialized');
+    this.logger.log(`Rate service client: ${typeof this.rateService}`);
+    this.logger.log(
+      `Wallet service client: ${typeof this.walletServiceClient}`
+    );
+    this.logger.log(`User service client: ${typeof this.userServiceClient}`);
   }
 
   async createOrder(createOrderDto: CreateOrderDto): Promise<Order> {
     const { userId, type, fromCurrency, toCurrency, fromAmount } =
       createOrderDto;
 
+    this.logger.log(`Creating order: ${JSON.stringify(createOrderDto)}`);
+
     try {
       // Get current exchange rate
-      const rateData = await firstValueFrom(
-        this.rateService.getRate({
-          baseCurrency: fromCurrency,
-          targetCurrency: toCurrency,
-        })
+      this.logger.log(
+        `Getting rate for ${fromCurrency}/${toCurrency} via gRPC`
       );
-
-      if (!rateData || !rateData.rate) {
+      let rateData;
+      try {
+        rateData = await firstValueFrom(
+          this.rateService.getRate({
+            baseCurrency: fromCurrency,
+            targetCurrency: toCurrency,
+          })
+        );
+      } catch (rateError) {
         this.logger.error(
-          `Failed to get rate for ${fromCurrency}/${toCurrency}`
+          `Failed to get rate for ${fromCurrency}/${toCurrency}: ${rateError.message}`
         );
         throw new BadRequestException(
-          `Failed to get rate for ${fromCurrency}/${toCurrency}`
+          `Currency pair ${fromCurrency}/${toCurrency} is not available for trading`
         );
       }
 
-      const rate = rateData.rate;
+      if (!rateData || !rateData.rate) {
+        this.logger.error(
+          `Invalid rate data for ${fromCurrency}/${toCurrency}`
+        );
+        throw new BadRequestException(
+          `Currency pair ${fromCurrency}/${toCurrency} is not available for trading`
+        );
+      }
+
+      // Safely convert the rate to a number if it's a string
+      const rate = typeof rateData.rate === 'string' 
+        ? parseFloat(rateData.rate) 
+        : rateData.rate;
+
+      this.logger.log(
+        `Received rate: ${rate} for ${fromCurrency}/${toCurrency}`
+      );
       const toAmount = fromAmount * rate;
 
       // Create order
@@ -103,6 +178,9 @@ export class TransactionService implements OnModuleInit {
       // Process the order immediately
       await this.processOrder(savedOrder.id);
 
+      // Invalidate user orders cache
+      await this.cacheService.delete(`user_orders:${userId}`);
+      
       return this.getOrderById(savedOrder.id);
     } catch (error) {
       this.logger.error(`Error creating order: ${error.message}`, error.stack);
@@ -111,26 +189,71 @@ export class TransactionService implements OnModuleInit {
   }
 
   async getOrderById(id: string): Promise<Order> {
-    const order = await this.orderRepository.findOne({ where: { id } });
-    if (!order) {
-      this.logger.error(`Order with id ${id} not found`);
-      throw new NotFoundException('Order not found');
-    }
-    return order;
+    const cacheKey = `order:${id}`;
+    
+    return this.cacheService.getOrSet(
+      cacheKey,
+      async () => {
+        try {
+          const order = await this.orderRepository.findOne({ where: { id } });
+          if (!order) {
+            this.logger.error(`Order with id ${id} not found`);
+            throw new NotFoundException('Order not found');
+          }
+          return order;
+        } catch (error) {
+          this.logger.error(`Error getting order ${id}: ${error.message}`, error.stack);
+          throw error;
+        }
+      },
+      this.ORDER_CACHE_TTL
+    );
   }
 
-  async getUserOrders(userId: string): Promise<Order[]> {
-    return this.orderRepository.find({
-      where: { userId },
-      order: { createdAt: 'DESC' },
-    });
+  async getUserOrders(
+    userId: string,
+    page = 1,
+    limit = 10
+  ): Promise<PaginatedResult<Order>> {
+    const cacheKey = `user_orders:${userId}:${page}:${limit}`;
+    
+    return this.cacheService.getOrSet(
+      cacheKey,
+      async () => {
+        const [items, total] = await this.orderRepository.findAndCount({
+          where: { userId },
+          skip: (page - 1) * limit,
+          take: limit,
+          order: { createdAt: 'DESC' },
+        });
+
+        return PaginationHelper.paginate(items, total, page, limit);
+      },
+      this.USER_ORDERS_CACHE_TTL
+    );
   }
 
-  async getOrderTransactions(orderId: string): Promise<Transaction[]> {
-    return this.transactionRepository.find({
-      where: { orderId },
-      relations: ['order'],
-    });
+  async getOrderTransactions(
+    orderId: string,
+    page = 1,
+    limit = 10
+  ): Promise<PaginatedResult<Transaction>> {
+    const cacheKey = `order_transactions:${orderId}:${page}:${limit}`;
+    
+    return this.cacheService.getOrSet(
+      cacheKey,
+      async () => {
+        const [items, total] = await this.transactionRepository.findAndCount({
+          where: { orderId },
+          skip: (page - 1) * limit,
+          take: limit,
+          order: { createdAt: 'DESC' },
+        });
+
+        return PaginationHelper.paginate(items, total, page, limit);
+      },
+      this.ORDER_CACHE_TTL
+    );
   }
 
   private async processOrder(orderId: string): Promise<void> {
@@ -155,39 +278,112 @@ export class TransactionService implements OnModuleInit {
         );
       }
 
-      // Find user's wallets
-      const fromWallet = await firstValueFrom(
-        this.walletServiceClient.getWalletByUserIdAndCurrency({
-          userId: order.userId,
-          currency: order.fromCurrency,
-        })
-      );
+      // Find or create source wallet
+      let fromWallet;
+      try {
+        this.logger.log(`Getting source wallet for userId: ${order.userId}, currency: ${order.fromCurrency}`);
+        fromWallet = await firstValueFrom(
+          this.walletServiceClient.getWalletByUserIdAndCurrency({
+            userId: order.userId,
+            currency: order.fromCurrency,
+          })
+        );
+        this.logger.log(`Successfully retrieved source wallet: ${JSON.stringify(fromWallet)}`);
+      } catch (error) {
+        this.logger.log(`Source wallet not found, attempting to create one: ${error.message}`);
+        // Create the wallet if it doesn't exist
+        try {
+          fromWallet = await firstValueFrom(
+            this.walletServiceClient.createWallet({
+              userId: order.userId,
+              currency: order.fromCurrency,
+            })
+          );
+          this.logger.log(`Successfully created source wallet: ${JSON.stringify(fromWallet)}`);
+        } catch (createError) {
+          // Check if error is because wallet already exists
+          if (createError.message.includes('already exists')) {
+            // If the wallet already exists, try fetching it again
+            this.logger.log(`Wallet already exists, trying to fetch it again`);
+            try {
+              fromWallet = await firstValueFrom(
+                this.walletServiceClient.getWalletByUserIdAndCurrency({
+                  userId: order.userId,
+                  currency: order.fromCurrency,
+                })
+              );
+              this.logger.log(`Successfully retrieved existing source wallet: ${JSON.stringify(fromWallet)}`);
+            } catch (fetchError) {
+              this.logger.error(`Failed to fetch existing wallet: ${fetchError.message}`, fetchError.stack);
+              throw new BadRequestException(
+                `Failed to fetch wallet for ${order.fromCurrency}: ${fetchError.message}`
+              );
+            }
+          } else {
+            this.logger.error(`Failed to create source wallet: ${createError.message}`, createError.stack);
+            throw new BadRequestException(
+              `Failed to create wallet for ${order.fromCurrency}: ${createError.message}`
+            );
+          }
+        }
+      }
 
       if (!fromWallet) {
         order.status = OrderStatus.FAILED;
         await queryRunner.manager.save(order);
         throw new BadRequestException(
-          `Wallet for ${order.fromCurrency} not found`
+          `Failed to get or create wallet for ${order.fromCurrency}`
         );
       }
 
       // Find or create destination wallet
       let toWallet;
       try {
+        this.logger.log(`Getting destination wallet for userId: ${order.userId}, currency: ${order.toCurrency}`);
         toWallet = await firstValueFrom(
           this.walletServiceClient.getWalletByUserIdAndCurrency({
             userId: order.userId,
             currency: order.toCurrency,
           })
         );
+        this.logger.log(`Successfully retrieved destination wallet: ${JSON.stringify(toWallet)}`);
       } catch (error) {
+        this.logger.log(`Destination wallet not found, attempting to create one: ${error.message}`);
         // Create the wallet if it doesn't exist
-        toWallet = await firstValueFrom(
-          this.walletServiceClient.createWallet({
-            userId: order.userId,
-            currency: order.toCurrency,
-          })
-        );
+        try {
+          toWallet = await firstValueFrom(
+            this.walletServiceClient.createWallet({
+              userId: order.userId,
+              currency: order.toCurrency,
+            })
+          );
+          this.logger.log(`Successfully created destination wallet: ${JSON.stringify(toWallet)}`);
+        } catch (createError) {
+          // Check if error is because wallet already exists
+          if (createError.message.includes('already exists')) {
+            // If the wallet already exists, try fetching it again
+            this.logger.log(`Wallet already exists, trying to fetch it again`);
+            try {
+              toWallet = await firstValueFrom(
+                this.walletServiceClient.getWalletByUserIdAndCurrency({
+                  userId: order.userId,
+                  currency: order.toCurrency,
+                })
+              );
+              this.logger.log(`Successfully retrieved existing destination wallet: ${JSON.stringify(toWallet)}`);
+            } catch (fetchError) {
+              this.logger.error(`Failed to fetch existing wallet: ${fetchError.message}`, fetchError.stack);
+              throw new BadRequestException(
+                `Failed to fetch wallet for ${order.toCurrency}: ${fetchError.message}`
+              );
+            }
+          } else {
+            this.logger.error(`Failed to create destination wallet: ${createError.message}`, createError.stack);
+            throw new BadRequestException(
+              `Failed to create wallet for ${order.toCurrency}: ${createError.message}`
+            );
+          }
+        }
       }
       if (!toWallet) {
         order.status = OrderStatus.FAILED;
@@ -205,26 +401,44 @@ export class TransactionService implements OnModuleInit {
       }
 
       // Process debit from source wallet
-      await firstValueFrom(
-        this.walletServiceClient.processTransaction({
-          walletId: fromWallet.id,
-          type: 'DEBIT',
-          amount: order.fromAmount,
-          description: `Forex order: ${order.fromCurrency} to ${order.toCurrency}`,
-          referenceId: order.id,
-        })
-      );
+      try {
+        this.logger.log(`Processing debit transaction from wallet ${fromWallet.id}`);
+        await firstValueFrom(
+          this.walletServiceClient.processTransaction({
+            walletId: fromWallet.id,
+            type: 'DEBIT',
+            amount: order.fromAmount,
+            description: `Forex order: ${order.fromCurrency} to ${order.toCurrency}`,
+            referenceId: order.id,
+          })
+        );
+        this.logger.log(`Successfully processed debit transaction`);
+      } catch (debitError) {
+        this.logger.error(`Failed to process debit transaction: ${debitError.message}`, debitError.stack);
+        throw new BadRequestException(
+          `Failed to process debit transaction: ${debitError.message}`
+        );
+      }
 
       // Process credit to destination wallet
-      await firstValueFrom(
-        this.walletServiceClient.processTransaction({
-          walletId: toWallet.id,
-          type: 'CREDIT',
-          amount: order.toAmount,
-          description: `Forex order: ${order.fromCurrency} to ${order.toCurrency}`,
-          referenceId: order.id,
-        })
-      );
+      try {
+        this.logger.log(`Processing credit transaction to wallet ${toWallet.id}`);
+        await firstValueFrom(
+          this.walletServiceClient.processTransaction({
+            walletId: toWallet.id,
+            type: 'CREDIT',
+            amount: order.toAmount,
+            description: `Forex order: ${order.fromCurrency} to ${order.toCurrency}`,
+            referenceId: order.id,
+          })
+        );
+        this.logger.log(`Successfully processed credit transaction`);
+      } catch (creditError) {
+        this.logger.error(`Failed to process credit transaction: ${creditError.message}`, creditError.stack);
+        throw new BadRequestException(
+          `Failed to process credit transaction: ${creditError.message}`
+        );
+      }
 
       // Create transaction record
       const transaction = this.transactionRepository.create({
@@ -245,6 +459,24 @@ export class TransactionService implements OnModuleInit {
       // Commit the transaction
       await queryRunner.commitTransaction();
 
+      // Get user email from user service
+      let userEmail = '';
+      try {
+        this.logger.log(`Getting user details for userId: ${order.userId}`);
+        const userResponse = await firstValueFrom(
+          this.userServiceClient.getUserById({ id: order.userId })
+        );
+        userEmail = userResponse.email;
+        this.logger.log(
+          `Found user email: ${userEmail} for user ID: ${order.userId}`
+        );
+      } catch (error) {
+        this.logger.error(
+          `Error fetching user email: ${error.message}`,
+          error.stack
+        );
+      }
+
       // Send notifications
       this.notificationClient.emit(
         NotificationPattern.SEND_TRANSACTION_NOTIFICATION,
@@ -254,7 +486,7 @@ export class TransactionService implements OnModuleInit {
           order.fromAmount,
           order.fromCurrency,
           'DEBIT',
-          '', // Email should be fetched from user service in a real implementation
+          userEmail, // Now using the fetched email
           {
             orderId: order.id,
             fromCurrency: order.fromCurrency,
@@ -274,7 +506,7 @@ export class TransactionService implements OnModuleInit {
           order.type,
           order.fromCurrency,
           order.toCurrency,
-          '', // Email should be fetched from user service in a real implementation
+          userEmail, // Now using the fetched email
           {
             fromAmount: order.fromAmount,
             toAmount: order.toAmount,
@@ -282,9 +514,19 @@ export class TransactionService implements OnModuleInit {
           }
         )
       );
+
+      // After completing order processing, invalidate order cache
+      await this.cacheService.delete(`order:${orderId}`);
+      
+      // Also invalidate user orders cache
+      if (order && order.userId) {
+        await this.cacheService.invalidatePattern(`user_orders:${order.userId}:*`);
+      }
     } catch (error) {
       // Rollback in case of error
       await queryRunner.rollbackTransaction();
+      
+      this.logger.error(`Error processing order ${orderId}: ${error.message}`, error.stack);
 
       // Update order status to FAILED if we couldn't handle in the catch block above
       try {
@@ -292,8 +534,35 @@ export class TransactionService implements OnModuleInit {
           where: { id: orderId },
         });
         if (order && order.status === OrderStatus.PENDING) {
+          this.logger.log(`Updating order ${orderId} status to FAILED`);
           order.status = OrderStatus.FAILED;
           await this.orderRepository.save(order);
+
+          // Get user email from user service
+          let userEmail = '';
+          try {
+            const userResponse = await firstValueFrom(
+              this.userServiceClient.getUserById({ id: order.userId })
+            );
+            userEmail = userResponse.email;
+          } catch (emailError) {
+            this.logger.error(
+              `Error fetching user email: ${emailError.message}`,
+              emailError.stack
+            );
+          }
+
+          // Prepare error message for notification
+          let errorMessage = error.message;
+          if (
+            error.message.includes('Rate not found') ||
+            error.message.includes('currency pair') ||
+            error.message.includes('not available for trading')
+          ) {
+            errorMessage = `Currency pair ${order.fromCurrency}/${order.toCurrency} is not available for trading`;
+          } else if (error.message.includes('UNKNOWN')) {
+            errorMessage = 'Communication error with service. Please try again later.';
+          }
 
           // Send failure notification
           this.notificationClient.emit(
@@ -305,9 +574,9 @@ export class TransactionService implements OnModuleInit {
               order.type,
               order.fromCurrency,
               order.toCurrency,
-              '', // Email should be fetched from user service in a real implementation
+              userEmail, // Now using the fetched email
               {
-                error: error.message,
+                error: errorMessage,
               }
             )
           );
@@ -319,10 +588,6 @@ export class TransactionService implements OnModuleInit {
         );
       }
 
-      this.logger.error(
-        `Error processing order: ${error.message}`,
-        error.stack
-      );
       throw error;
     } finally {
       // Release the query runner

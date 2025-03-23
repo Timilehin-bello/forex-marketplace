@@ -4,3 +4,6 @@ dist
 .github
 .idea
 .vscode
+docs
+temp
+postman_export

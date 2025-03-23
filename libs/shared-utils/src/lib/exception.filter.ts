@@ -7,6 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { errorResponse } from './response/api-response.interface';
 
 @Catch()
 export class ExceptionFilter implements NestExceptionFilter {
@@ -29,19 +30,17 @@ export class ExceptionFilter implements NestExceptionFilter {
           : (exceptionResponse as { message: string }).message || message;
     }
 
-    const errorResponse = {
+    const errorResponseObj = errorResponse(message, {
       statusCode: status,
-      timestamp: new Date().toISOString(),
       path: request.url,
       method: request.method,
-      message,
-    };
+    });
 
     this.logger.error(
       `${request.method} ${request.url} - ${status}`,
       exception instanceof Error ? exception.stack : undefined
     );
 
-    response.status(status).json(errorResponse);
+    response.status(status).json(errorResponseObj);
   }
 }

@@ -5,15 +5,24 @@
     "module": "commonjs",
     "types": ["node"],
     "emitDecoratorMetadata": true,
-    "target": "es2020"
+    "target": "es2020",
+    "composite": true,
+    "declaration": true
   },
-  "exclude": ["jest.config.ts", "src/**/*.spec.ts", "src/**/*.test.ts"],
-  "include": ["src/**/*.ts"],
-  "files": [
-    "../../libs/auth/src/index.ts",
-    "../../libs/shared-types/src/index.ts",
-    "../../libs/shared-utils/src/index.ts",
-    "../../libs/database/src/index.ts",
-    "../../libs/message-queue/src/index.ts"
+  "exclude": [
+    "jest.config.ts",
+    "src/**/*.spec.ts",
+    "src/**/*.test.ts",
+    "../../libs/**/*.spec.ts",
+    "../../libs/**/*.test.ts"
+  ],
+  "include": [
+    "src/**/*.ts",
+    "../../libs/auth/src/**/*.ts",
+    "../../libs/shared-types/src/**/*.ts",
+    "../../libs/shared-utils/src/**/*.ts",
+    "../../libs/database/src/**/*.ts",
+    "../../libs/message-queue/src/**/*.ts",
+    "../../libs/grpc/src/**/*.ts"
   ]
 }

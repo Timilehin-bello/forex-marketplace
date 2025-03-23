@@ -1,4 +1,4 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ForexRate } from '../entities/rate.entity';
@@ -6,15 +6,23 @@ import { HttpService } from '@nestjs/axios';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { catchError, firstValueFrom } from 'rxjs';
 import { AxiosError } from 'axios';
-import { LoggerService } from '@forex-marketplace/shared-utils';
+import { LoggerService, CacheService } from '@forex-marketplace/shared-utils';
+import {
+  PaginatedResult,
+  PaginationHelper,
+} from '@forex-marketplace/shared-types';
 
 @Injectable()
 export class RateService implements OnModuleInit {
+  private readonly logger = new Logger(RateService.name);
+  private readonly CACHE_TTL = 300; // 5 minutes in seconds
+
   constructor(
     @InjectRepository(ForexRate)
     private readonly rateRepository: Repository<ForexRate>,
     private readonly httpService: HttpService,
-    private readonly logger: LoggerService
+    private readonly loggerService: LoggerService,
+    private readonly cacheService: CacheService,
   ) {}
 
   async onModuleInit() {
@@ -27,8 +35,11 @@ export class RateService implements OnModuleInit {
     try {
       this.logger.log('Fetching latest forex rates');
 
-      const apiKey = process.env['EXCHANGE_RATE_API_KEY'] || 'your_api_key';
-      this.logger.log('apikey: ' + apiKey);
+      const apiKey = process.env['EXCHANGE_RATE_API_KEY'];
+      if (!apiKey) {
+        throw new BadRequestException('Exchange rate API key is not configured');
+      }
+
       const baseCurrencies = ['USD', 'EUR', 'GBP', 'JPY', 'CAD'];
 
       for (const baseCurrency of baseCurrencies) {
@@ -41,6 +52,7 @@ export class RateService implements OnModuleInit {
         `Failed to fetch forex rates: ${error.message}`,
         error.stack
       );
+      throw error;
     }
   }
 
@@ -84,6 +96,7 @@ export class RateService implements OnModuleInit {
         `Failed to fetch rates for ${baseCurrency}: ${error.message}`,
         error.stack
       );
+      throw error;
     }
   }
 
@@ -116,42 +129,155 @@ export class RateService implements OnModuleInit {
     baseCurrency: string,
     targetCurrency: string
   ): Promise<ForexRate> {
-    const rate = await this.rateRepository.findOne({
-      where: { baseCurrency, targetCurrency },
-    });
-
-    if (!rate) {
-      this.logger.warn(`Rate not found for ${baseCurrency}/${targetCurrency}`);
-
-      // Try to calculate the rate using USD as intermediate
-      if (baseCurrency !== 'USD' && targetCurrency !== 'USD') {
-        const baseToUsd = await this.rateRepository.findOne({
-          where: { baseCurrency: 'USD', targetCurrency: baseCurrency },
-        });
-
-        const usdToTarget = await this.rateRepository.findOne({
-          where: { baseCurrency: 'USD', targetCurrency },
-        });
-
-        if (baseToUsd && usdToTarget) {
-          const calculatedRate = (1 / baseToUsd.rate) * usdToTarget.rate;
-
-          return this.rateRepository.create({
-            baseCurrency,
-            targetCurrency,
-            rate: calculatedRate,
-            timestamp: new Date(),
-          });
+    const cacheKey = `rate:${baseCurrency}:${targetCurrency}`;
+    
+    return this.cacheService.getOrSet(
+      cacheKey,
+      async () => {
+        if (!baseCurrency || !targetCurrency) {
+          throw new BadRequestException('Base and target currencies are required');
         }
-      }
 
-      throw new Error(`Rate not found for ${baseCurrency}/${targetCurrency}`);
-    }
+        try {
+          const rate = await this.rateRepository.findOne({
+            where: { baseCurrency, targetCurrency },
+          });
 
-    return rate;
+          if (!rate) {
+            this.logger.warn(`Rate not found for ${baseCurrency}/${targetCurrency}`);
+
+            // Try to calculate the rate using USD as intermediate
+            if (baseCurrency !== 'USD' && targetCurrency !== 'USD') {
+              const baseToUsd = await this.rateRepository.findOne({
+                where: { baseCurrency: 'USD', targetCurrency: baseCurrency },
+              });
+
+              const usdToTarget = await this.rateRepository.findOne({
+                where: { baseCurrency: 'USD', targetCurrency },
+              });
+
+              if (baseToUsd && usdToTarget) {
+                const calculatedRate = (1 / baseToUsd.rate) * usdToTarget.rate;
+
+                return this.rateRepository.create({
+                  baseCurrency,
+                  targetCurrency,
+                  rate: calculatedRate,
+                  timestamp: new Date(),
+                });
+              }
+            }
+
+            throw new NotFoundException(
+              `Currency pair ${baseCurrency}/${targetCurrency} is not available for trading`
+            );
+          }
+
+          return rate;
+        } catch (error) {
+          this.logger.error(
+            `Error getting rate for ${baseCurrency}/${targetCurrency}: ${error.message}`,
+            error.stack
+          );
+          throw error;
+        }
+      },
+      this.CACHE_TTL
+    );
   }
 
-  async getAllRates(): Promise<ForexRate[]> {
-    return this.rateRepository.find();
+  async getAllRates(page = 1, limit = 10): Promise<PaginatedResult<ForexRate>> {
+    try {
+      const [items, total] = await this.rateRepository.findAndCount({
+        skip: (page - 1) * limit,
+        take: limit,
+        order: {
+          baseCurrency: 'ASC',
+          targetCurrency: 'ASC',
+        },
+      });
+
+      return PaginationHelper.paginate(items, total, page, limit);
+    } catch (error) {
+      this.logger.error(
+        `Error getting all rates: ${error.message}`,
+        error.stack
+      );
+      throw error;
+    }
+  }
+
+  async convertCurrency(
+    fromCurrency: string,
+    toCurrency: string,
+    amount: number
+  ): Promise<{
+    fromCurrency: string;
+    toCurrency: string;
+    fromAmount: number;
+    toAmount: number;
+    rate: number;
+  }> {
+    if (!fromCurrency || !toCurrency) {
+      throw new BadRequestException('From and to currencies are required');
+    }
+
+    if (amount <= 0) {
+      throw new BadRequestException('Amount must be greater than 0');
+    }
+
+    const rate = await this.getRate(fromCurrency, toCurrency);
+    const toAmount = amount * rate.rate;
+
+    return {
+      fromCurrency,
+      toCurrency,
+      fromAmount: amount,
+      toAmount,
+      rate: rate.rate,
+    };
+  }
+
+  async updateRate(fromCurrency: string, toCurrency: string, rate: number): Promise<ForexRate> {
+    const existingRate = await this.rateRepository.findOne({
+      where: {
+        baseCurrency: fromCurrency,
+        targetCurrency: toCurrency,
+      },
+    });
+
+    if (existingRate) {
+      existingRate.rate = rate;
+      existingRate.timestamp = new Date();
+      await this.rateRepository.save(existingRate);
+      
+      // Invalidate cache
+      await this.cacheService.delete(`rate:${fromCurrency}:${toCurrency}`);
+      return existingRate;
+    }
+
+    const newRate = this.rateRepository.create({
+      baseCurrency: fromCurrency,
+      targetCurrency: toCurrency,
+      rate,
+      timestamp: new Date(),
+    });
+
+    await this.rateRepository.save(newRate);
+    return newRate;
+  }
+
+  async deleteRate(fromCurrency: string, toCurrency: string): Promise<void> {
+    const result = await this.rateRepository.delete({
+      baseCurrency: fromCurrency,
+      targetCurrency: toCurrency,
+    });
+
+    if (result.affected === 0) {
+      throw new NotFoundException(`Rate not found for ${fromCurrency}/${toCurrency}`);
+    }
+
+    // Invalidate cache
+    await this.cacheService.delete(`rate:${fromCurrency}:${toCurrency}`);
   }
 }

@@ -10,6 +10,13 @@ fi
 # Start the specified service
 case "$SERVICE_NAME" in
   user-auth-service)
+    # Admin seeding is handled by AdminSeedService during startup
+    # Log admin credentials for verification
+    echo "Starting user-auth-service with admin seeding..."
+    echo "Admin email: ${ADMIN_EMAIL:-admin@forex-marketplace.com}"
+    echo "Admin first name: ${ADMIN_FIRSTNAME:-Super}"
+    echo "Admin last name: ${ADMIN_LASTNAME:-Admin}"
+    
     exec node dist/apps/user-auth-service/main.js
     ;;
   wallet-service)

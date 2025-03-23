@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package transaction;
+
+service TransactionService {
+  rpc GetOrder (GetOrderRequest) returns (OrderResponse) {}
+  rpc GetUserOrders (GetUserOrdersRequest) returns (OrdersResponse) {}
+}
+
+message GetOrderRequest {
+  string id = 1;
+}
+
+message GetUserOrdersRequest {
+  string userId = 1;
+  int32 page = 2;
+  int32 limit = 3;
+}
+
+message OrderResponse {
+  string id = 1;
+  string userId = 2;
+  string type = 3;
+  string fromCurrency = 4;
+  string toCurrency = 5;
+  double fromAmount = 6;
+  double toAmount = 7;
+  double rate = 8;
+  string status = 9;
+  string createdAt = 10;
+  string updatedAt = 11;
+}
+
+message OrdersResponse {
+  repeated OrderResponse orders = 1;
+  int32 total = 2;
+  int32 page = 3;
+  int32 limit = 4;
+  int32 totalPages = 5;
+} 

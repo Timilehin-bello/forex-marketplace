@@ -3,6 +3,7 @@ import { TransactionModule } from './transaction.module';
 import { SharedUtilsModule } from '@forex-marketplace/shared-utils';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
+import { AuthModule } from '@forex-marketplace/auth';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { JwtModule } from '@nestjs/jwt';
       secret: process.env['JWT_SECRET'] || 'supersecret',
       signOptions: { expiresIn: '7d' },
     }),
+    AuthModule,
     TransactionModule,
     SharedUtilsModule,
   ],

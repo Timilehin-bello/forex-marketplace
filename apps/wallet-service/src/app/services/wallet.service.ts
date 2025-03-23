@@ -10,16 +10,23 @@ import { Wallet } from '../entities/wallet.entity';
 import { WalletTransaction } from '../entities/wallet-transaction.entity';
 import { CreateWalletDto } from '../dtos/create-wallet.dto';
 import { WalletTransactionDto } from '../dtos/transaction.dto';
-import { LoggerService } from '@forex-marketplace/shared-utils';
+import { LoggerService, CacheService } from '@forex-marketplace/shared-utils';
 import { ClientProxy } from '@nestjs/microservices';
 import { Inject } from '@nestjs/common';
 import {
   NotificationPattern,
   WalletNotificationEvent,
 } from '@forex-marketplace/message-queue';
+import {
+  PaginatedResult,
+  PaginationHelper,
+} from '@forex-marketplace/shared-types';
 
 @Injectable()
 export class WalletService {
+  private readonly WALLET_CACHE_TTL = 300; // 5 minutes
+  private readonly USER_WALLETS_CACHE_TTL = 300; // 5 minutes
+
   constructor(
     @InjectRepository(Wallet)
     private readonly walletRepository: Repository<Wallet>,
@@ -27,6 +34,7 @@ export class WalletService {
     private readonly transactionRepository: Repository<WalletTransaction>,
     private readonly dataSource: DataSource,
     private readonly logger: LoggerService,
+    private readonly cacheService: CacheService,
     @Inject('NOTIFICATION_SERVICE')
     private readonly notificationClient: ClientProxy
   ) {}
@@ -52,6 +60,9 @@ export class WalletService {
     const wallet = this.walletRepository.create(createWalletDto);
     const savedWallet = await this.walletRepository.save(wallet);
 
+    // Invalidate user wallets cache
+    await this.cacheService.invalidatePattern(`user_wallets:${userId}:*`);
+
     // Send notification
     this.notificationClient.emit(
       NotificationPattern.SEND_WALLET_NOTIFICATION,
@@ -69,40 +80,82 @@ export class WalletService {
   }
 
   async getWalletById(id: string): Promise<Wallet> {
-    const wallet = await this.walletRepository.findOne({ where: { id } });
-    if (!wallet) {
-      this.logger.error(`Wallet with id ${id} not found`);
-      throw new NotFoundException('Wallet not found');
-    }
-    return wallet;
+    const cacheKey = `wallet:${id}`;
+    
+    return this.cacheService.getOrSet(
+      cacheKey,
+      async () => {
+        const wallet = await this.walletRepository.findOne({ where: { id } });
+        if (!wallet) {
+          this.logger.error(`Wallet with id ${id} not found`);
+          throw new NotFoundException('Wallet not found');
+        }
+        return wallet;
+      },
+      this.WALLET_CACHE_TTL
+    );
   }
 
-  async getWalletsByUserId(userId: string): Promise<Wallet[]> {
-    return this.walletRepository.find({ where: { userId } });
+  async getWalletsByUserId(
+    userId: string,
+    page = 1,
+    limit = 10
+  ): Promise<PaginatedResult<Wallet>> {
+    const cacheKey = `user_wallets:${userId}:${page}:${limit}`;
+    
+    return this.cacheService.getOrSet(
+      cacheKey,
+      async () => {
+        const [items, total] = await this.walletRepository.findAndCount({
+          where: { userId },
+          skip: (page - 1) * limit,
+          take: limit,
+          order: { currency: 'ASC' },
+        });
+
+        return PaginationHelper.paginate(items, total, page, limit);
+      },
+      this.USER_WALLETS_CACHE_TTL
+    );
   }
 
   async getWalletByUserIdAndCurrency(
     userId: string,
     currency: string
   ): Promise<Wallet> {
-    const wallet = await this.walletRepository.findOne({
-      where: { userId, currency },
-    });
+    const cacheKey = `wallet:${userId}:${currency}`;
+    
+    return this.cacheService.getOrSet(
+      cacheKey,
+      async () => {
+        const wallet = await this.walletRepository.findOne({
+          where: { userId, currency },
+        });
 
-    if (!wallet) {
-      this.logger.error(
-        `Wallet for user ${userId} with currency ${currency} not found`
-      );
-      throw new NotFoundException(`Wallet for currency ${currency} not found`);
-    }
+        if (!wallet) {
+          this.logger.error(
+            `Wallet for user ${userId} with currency ${currency} not found`
+          );
+          throw new NotFoundException(`Wallet for currency ${currency} not found`);
+        }
 
-    return wallet;
+        return wallet;
+      },
+      this.WALLET_CACHE_TTL
+    );
   }
 
   async processTransaction(
     transactionDto: WalletTransactionDto
   ): Promise<WalletTransaction> {
     const { walletId, type, amount, description, referenceId } = transactionDto;
+
+    this.logger.log(
+      `Processing transaction: ${JSON.stringify(transactionDto)}`
+    );
+    this.logger.log(
+      `Amount before processing: ${amount}, Type: ${typeof amount}`
+    );
 
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -119,15 +172,21 @@ export class WalletService {
         throw new NotFoundException(`Wallet with ID ${walletId} not found`);
       }
 
-      // Update wallet balance
+      this.logger.log(`Wallet before update: ${JSON.stringify(wallet)}`);
+
+      // Update wallet balance - ensure we're working with proper numeric values
+      const numericAmount = Number(amount);
+
       if (type === 'CREDIT') {
-        wallet.balance += amount;
+        wallet.balance = Number(wallet.balance) + numericAmount;
       } else if (type === 'DEBIT') {
-        if (wallet.balance < amount) {
+        if (Number(wallet.balance) < numericAmount) {
           throw new BadRequestException('Insufficient funds');
         }
-        wallet.balance -= amount;
+        wallet.balance = Number(wallet.balance) - numericAmount;
       }
+
+      this.logger.log(`Wallet after update: ${JSON.stringify(wallet)}`);
 
       // Save updated wallet
       await queryRunner.manager.save(wallet);
@@ -145,6 +204,12 @@ export class WalletService {
 
       // Commit the transaction
       await queryRunner.commitTransaction();
+
+      // Invalidate caches
+      await this.cacheService.delete(`wallet:${walletId}`);
+      await this.cacheService.delete(`wallet:${wallet.userId}:${wallet.currency}`);
+      await this.cacheService.invalidatePattern(`user_wallets:${wallet.userId}:*`);
+      await this.cacheService.invalidatePattern(`wallet_transactions:${walletId}:*`);
 
       // Send notification
       this.notificationClient.emit(
@@ -179,11 +244,25 @@ export class WalletService {
   }
 
   async getTransactionsByWalletId(
-    walletId: string
-  ): Promise<WalletTransaction[]> {
-    return this.transactionRepository.find({
-      where: { walletId },
-      order: { createdAt: 'DESC' },
-    });
+    walletId: string,
+    page = 1,
+    limit = 10
+  ): Promise<PaginatedResult<WalletTransaction>> {
+    const cacheKey = `wallet_transactions:${walletId}:${page}:${limit}`;
+    
+    return this.cacheService.getOrSet(
+      cacheKey,
+      async () => {
+        const [items, total] = await this.transactionRepository.findAndCount({
+          where: { walletId },
+          skip: (page - 1) * limit,
+          take: limit,
+          order: { createdAt: 'DESC' },
+        });
+
+        return PaginationHelper.paginate(items, total, page, limit);
+      },
+      this.WALLET_CACHE_TTL
+    );
   }
 }

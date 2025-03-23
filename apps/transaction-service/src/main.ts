@@ -25,7 +25,7 @@ async function bootstrap() {
   // CORS
   app.enableCors();
 
-  const port = process.env.PORT || 3004;
+  const port = process.env.TRANSACTION_PORT || 3014;
   await app.listen(port);
 
   Logger.log(

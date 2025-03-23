@@ -5,10 +5,12 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { ForexRate } from './entities/rate.entity';
 import { RateService } from './services/rate.service';
 import { RateController } from './controllers/rate.controller';
-import { RateGrpcService } from './grpc/rate-grpc.service';
+import { RateGrpcController } from './grpc/rate-grpc.controller';
 import { DatabaseModule } from '@forex-marketplace/database';
 import { SharedUtilsModule } from '@forex-marketplace/shared-utils';
+import { Global } from '@nestjs/common';
 
+@Global()
 @Module({
   imports: [
     DatabaseModule,
@@ -17,8 +19,8 @@ import { SharedUtilsModule } from '@forex-marketplace/shared-utils';
     ScheduleModule.forRoot(),
     SharedUtilsModule,
   ],
-  controllers: [RateController],
-  providers: [RateService, RateGrpcService],
+  controllers: [RateController, RateGrpcController],
+  providers: [RateService],
   exports: [RateService],
 })
 export class RateModule {}
