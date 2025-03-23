@@ -72,49 +72,51 @@ This project consists of the following microservices:
 All necessary environment variables are listed below. You can configure them in the `.env` file:
 
 #### Common Variables
-| Variable | Description | Default |
-|----------|-------------|---------|
-| NODE_ENV | Environment mode | `development` |
-| DB_HOST | PostgreSQL host | `localhost` |
-| DB_PORT | PostgreSQL port | `5432` |
-| DB_USERNAME | PostgreSQL username | `postgres` |
-| DB_PASSWORD | PostgreSQL password | `postgres` |
-| DB_DATABASE | PostgreSQL database name | `forex` |
-| RABBITMQ_URL | RabbitMQ connection URL | `amqp://guest:guest@localhost:5672` |
-| REDIS_HOST | Redis host | `localhost` |
-| REDIS_PORT | Redis port | `6379` |
-| JWT_SECRET | Secret key for JWT tokens | (Set a secure value) |
-| JWT_EXPIRES_IN | JWT token expiration | `7d` |
+
+| Variable       | Description               | Default                             |
+| -------------- | ------------------------- | ----------------------------------- |
+| NODE_ENV       | Environment mode          | `development`                       |
+| DB_HOST        | PostgreSQL host           | `localhost`                         |
+| DB_PORT        | PostgreSQL port           | `5432`                              |
+| DB_USERNAME    | PostgreSQL username       | `postgres`                          |
+| DB_PASSWORD    | PostgreSQL password       | `postgres`                          |
+| DB_DATABASE    | PostgreSQL database name  | `forex`                             |
+| RABBITMQ_URL   | RabbitMQ connection URL   | `amqp://guest:guest@localhost:5672` |
+| REDIS_HOST     | Redis host                | `localhost`                         |
+| REDIS_PORT     | Redis port                | `6379`                              |
+| JWT_SECRET     | Secret key for JWT tokens | (Set a secure value)                |
+| JWT_EXPIRES_IN | JWT token expiration      | `7d`                                |
 
 #### Service-Specific Variables
-| Variable | Description | Service | Default |
-|----------|-------------|---------|---------|
-| USER_AUTH_PORT | User Auth Service HTTP port | User Auth | `3001` |
-| USER_AUTH_GRPC_PORT | User Auth Service gRPC port | User Auth | `5013` |
-| USER_GRPC_URL | User Auth gRPC URL | User Auth | `localhost:5013` |
-| WALLET_PORT | Wallet Service HTTP port | Wallet | `3002` |
-| WALLET_GRPC_PORT | Wallet Service gRPC port | Wallet | `5002` |
-| WALLET_GRPC_URL | Wallet gRPC URL | Wallet | `localhost:5002` |
-| RATE_PORT | Rate Service HTTP port | Rate | `3003` |
-| RATE_GRPC_PORT | Rate Service gRPC port | Rate | `5011` |
-| RATE_GRPC_URL | Rate gRPC URL | Rate | `localhost:5011` |
-| TRANSACTION_PORT | Transaction Service HTTP port | Transaction | `3014` |
-| TRANSACTION_GRPC_PORT | Transaction Service gRPC port | Transaction | `5014` |
-| TRANSACTION_GRPC_URL | Transaction gRPC URL | Transaction | `localhost:5014` |
-| NOTIFICATION_PORT | Notification Service HTTP port | Notification | `3006` |
-| NOTIFICATION_GRPC_PORT | Notification Service gRPC port | Notification | `5006` |
-| NOTIFICATION_GRPC_URL | Notification gRPC URL | Notification | `localhost:5006` |
-| ADMIN_EMAIL | Admin user email | User Auth | `admin@forex-marketplace.com` |
-| ADMIN_PASSWORD | Admin user password | User Auth | `Admin@123456` |
-| ADMIN_FIRSTNAME | Admin first name | User Auth | `Super` |
-| ADMIN_LASTNAME | Admin last name | User Auth | `Admin` |
-| EXCHANGE_RATE_API_KEY | API key for rates | Rate | (Required) |
-| EMAIL_FROM | Email sender address | Notification | `noreply@forex-platform.com` |
-| SMTP_HOST | SMTP server host | Notification | (Required for emails) |
-| SMTP_PORT | SMTP server port | Notification | `587` |
-| SMTP_SECURE | Use secure connection | Notification | `false` |
-| SMTP_USER | SMTP username | Notification | (Required for emails) |
-| SMTP_PASSWORD | SMTP password | Notification | (Required for emails) |
+
+| Variable               | Description                    | Service      | Default                       |
+| ---------------------- | ------------------------------ | ------------ | ----------------------------- |
+| USER_AUTH_PORT         | User Auth Service HTTP port    | User Auth    | `3001`                        |
+| USER_AUTH_GRPC_PORT    | User Auth Service gRPC port    | User Auth    | `5013`                        |
+| USER_GRPC_URL          | User Auth gRPC URL             | User Auth    | `localhost:5013`              |
+| WALLET_PORT            | Wallet Service HTTP port       | Wallet       | `3002`                        |
+| WALLET_GRPC_PORT       | Wallet Service gRPC port       | Wallet       | `5002`                        |
+| WALLET_GRPC_URL        | Wallet gRPC URL                | Wallet       | `localhost:5002`              |
+| RATE_PORT              | Rate Service HTTP port         | Rate         | `3003`                        |
+| RATE_GRPC_PORT         | Rate Service gRPC port         | Rate         | `5011`                        |
+| RATE_GRPC_URL          | Rate gRPC URL                  | Rate         | `localhost:5011`              |
+| TRANSACTION_PORT       | Transaction Service HTTP port  | Transaction  | `3014`                        |
+| TRANSACTION_GRPC_PORT  | Transaction Service gRPC port  | Transaction  | `5014`                        |
+| TRANSACTION_GRPC_URL   | Transaction gRPC URL           | Transaction  | `localhost:5014`              |
+| NOTIFICATION_PORT      | Notification Service HTTP port | Notification | `3006`                        |
+| NOTIFICATION_GRPC_PORT | Notification Service gRPC port | Notification | `5006`                        |
+| NOTIFICATION_GRPC_URL  | Notification gRPC URL          | Notification | `localhost:5006`              |
+| ADMIN_EMAIL            | Admin user email               | User Auth    | `admin@forex-marketplace.com` |
+| ADMIN_PASSWORD         | Admin user password            | User Auth    | `Admin@123456`                |
+| ADMIN_FIRSTNAME        | Admin first name               | User Auth    | `Super`                       |
+| ADMIN_LASTNAME         | Admin last name                | User Auth    | `Admin`                       |
+| EXCHANGE_RATE_API_KEY  | API key for rates              | Rate         | (Required)                    |
+| EMAIL_FROM             | Email sender address           | Notification | `noreply@forex-platform.com`  |
+| SMTP_HOST              | SMTP server host               | Notification | (Required for emails)         |
+| SMTP_PORT              | SMTP server port               | Notification | `587`                         |
+| SMTP_SECURE            | Use secure connection          | Notification | `false`                       |
+| SMTP_USER              | SMTP username                  | Notification | (Required for emails)         |
+| SMTP_PASSWORD          | SMTP password                  | Notification | (Required for emails)         |
 
 ### Running with Docker
 
@@ -173,7 +175,7 @@ To create an admin user, run:
 yarn create:admin
 ```
 
-This uses the ADMIN_* environment variables to create a default admin account.
+This uses the ADMIN\_\* environment variables to create a default admin account.
 
 ## Development Workflow
 
@@ -225,6 +227,7 @@ yarn test:coverage
 The services expose the following REST API endpoints:
 
 ### User Auth Service (Port 3001)
+
 - `POST /api/v1/users/register` - Register a new user
 - `POST /api/v1/users/login` - Login and get JWT token
 - `GET /api/v1/users/profile` - Get user profile
@@ -232,6 +235,7 @@ The services expose the following REST API endpoints:
 - `POST /api/v1/users/promote/:userId` - Promote user to admin (requires admin role)
 
 ### Wallet Service (Port 3002)
+
 - `POST /api/v1/wallets` - Create a new wallet
 - `GET /api/v1/wallets/:id` - Get wallet by ID
 - `GET /api/v1/wallets/user/:userId` - Get wallets by user ID
@@ -240,16 +244,19 @@ The services expose the following REST API endpoints:
 - `GET /api/v1/wallets/:walletId/transactions` - Get transactions for a wallet
 
 ### Rate Service (Port 3003)
+
 - `GET /api/v1/rates` - Get all exchange rates
 - `GET /api/v1/rates/:baseCurrency/:targetCurrency` - Get rate for currency pair
 
 ### Transaction Service (Port 3014)
+
 - `POST /api/v1/transactions/orders` - Create a new order
 - `GET /api/v1/transactions/orders/:id` - Get order by ID
 - `GET /api/v1/transactions/user/:userId/orders` - Get user orders
 - `GET /api/v1/transactions/orders/:orderId/transactions` - Get transactions for an order
 
 ### Notification Service (Port 3006)
+
 - `GET /api/v1/notifications/user/:userId` - Get user notifications
 - `PUT /api/v1/notifications/:id/read` - Mark notification as read
 
@@ -259,6 +266,9 @@ For more detailed information, refer to the following documentation:
 
 - [`docs/admin-user-creation.md`](docs/admin-user-creation.md): Detailed guide for creating admin users
 - [`docs/api-response-standards.md`](docs/api-response-standards.md): API response format standards
+- [`docs/Forex Marketplace.postman_collection.json`](docs/Forex%20Marketplace.postman_collection.json): This file contains a Postman collection for API testing. You can import it into Postman to test various API endpoints. Additionally, a script is included to save response IDs to collection variables for easier management.
+
+https://documenter.getpostman.com/view/12489526/2sAYkHoe47
 
 Additionally, each microservice has its own README.md file in its respective directory with service-specific details.
 
