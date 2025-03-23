@@ -89,14 +89,12 @@ This service relies on the following main dependencies:
 
 ## API Endpoints
 
-- `GET /api/v1/wallets` - Get user wallets
-- `GET /api/v1/wallets/:id` - Get wallet by ID
 - `POST /api/v1/wallets` - Create a new wallet
-- `PUT /api/v1/wallets/:id` - Update wallet
-- `DELETE /api/v1/wallets/:id` - Delete wallet
-- `POST /api/v1/wallets/:id/deposit` - Deposit funds
-- `POST /api/v1/wallets/:id/withdraw` - Withdraw funds
-- `POST /api/v1/wallets/:id/convert` - Convert between currencies
+- `GET /api/v1/wallets/:id` - Get wallet by ID
+- `GET /api/v1/wallets/user/:userId` - Get wallets by user ID
+- `GET /api/v1/wallets/user/:userId/currency/:currency` - Get wallet by user ID and currency
+- `POST /api/v1/wallets/transaction` - Process a transaction (deposit/withdraw)
+- `GET /api/v1/wallets/:walletId/transactions` - Get transactions for a wallet
 
 ## gRPC Service
 

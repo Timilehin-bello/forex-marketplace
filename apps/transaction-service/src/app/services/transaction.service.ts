@@ -278,7 +278,7 @@ export class TransactionService implements OnModuleInit {
         );
       }
 
-      // Find user's wallets with better error handling
+      // Find or create source wallet
       let fromWallet;
       try {
         this.logger.log(`Getting source wallet for userId: ${order.userId}, currency: ${order.fromCurrency}`);
@@ -301,10 +301,30 @@ export class TransactionService implements OnModuleInit {
           );
           this.logger.log(`Successfully created source wallet: ${JSON.stringify(fromWallet)}`);
         } catch (createError) {
-          this.logger.error(`Failed to create source wallet: ${createError.message}`, createError.stack);
-          throw new BadRequestException(
-            `Failed to create wallet for ${order.fromCurrency}: ${createError.message}`
-          );
+          // Check if error is because wallet already exists
+          if (createError.message.includes('already exists')) {
+            // If the wallet already exists, try fetching it again
+            this.logger.log(`Wallet already exists, trying to fetch it again`);
+            try {
+              fromWallet = await firstValueFrom(
+                this.walletServiceClient.getWalletByUserIdAndCurrency({
+                  userId: order.userId,
+                  currency: order.fromCurrency,
+                })
+              );
+              this.logger.log(`Successfully retrieved existing source wallet: ${JSON.stringify(fromWallet)}`);
+            } catch (fetchError) {
+              this.logger.error(`Failed to fetch existing wallet: ${fetchError.message}`, fetchError.stack);
+              throw new BadRequestException(
+                `Failed to fetch wallet for ${order.fromCurrency}: ${fetchError.message}`
+              );
+            }
+          } else {
+            this.logger.error(`Failed to create source wallet: ${createError.message}`, createError.stack);
+            throw new BadRequestException(
+              `Failed to create wallet for ${order.fromCurrency}: ${createError.message}`
+            );
+          }
         }
       }
 
@@ -316,7 +336,7 @@ export class TransactionService implements OnModuleInit {
         );
       }
 
-      // Find or create destination wallet with better error handling
+      // Find or create destination wallet
       let toWallet;
       try {
         this.logger.log(`Getting destination wallet for userId: ${order.userId}, currency: ${order.toCurrency}`);
@@ -339,10 +359,30 @@ export class TransactionService implements OnModuleInit {
           );
           this.logger.log(`Successfully created destination wallet: ${JSON.stringify(toWallet)}`);
         } catch (createError) {
-          this.logger.error(`Failed to create destination wallet: ${createError.message}`, createError.stack);
-          throw new BadRequestException(
-            `Failed to create wallet for ${order.toCurrency}: ${createError.message}`
-          );
+          // Check if error is because wallet already exists
+          if (createError.message.includes('already exists')) {
+            // If the wallet already exists, try fetching it again
+            this.logger.log(`Wallet already exists, trying to fetch it again`);
+            try {
+              toWallet = await firstValueFrom(
+                this.walletServiceClient.getWalletByUserIdAndCurrency({
+                  userId: order.userId,
+                  currency: order.toCurrency,
+                })
+              );
+              this.logger.log(`Successfully retrieved existing destination wallet: ${JSON.stringify(toWallet)}`);
+            } catch (fetchError) {
+              this.logger.error(`Failed to fetch existing wallet: ${fetchError.message}`, fetchError.stack);
+              throw new BadRequestException(
+                `Failed to fetch wallet for ${order.toCurrency}: ${fetchError.message}`
+              );
+            }
+          } else {
+            this.logger.error(`Failed to create destination wallet: ${createError.message}`, createError.stack);
+            throw new BadRequestException(
+              `Failed to create wallet for ${order.toCurrency}: ${createError.message}`
+            );
+          }
         }
       }
       if (!toWallet) {

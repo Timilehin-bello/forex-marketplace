@@ -95,11 +95,8 @@ This service relies on the following main dependencies:
 
 ## API Endpoints
 
-- `GET /api/v1/notifications` - Get user notifications
-- `GET /api/v1/notifications/:id` - Get notification by ID
-- `POST /api/v1/notifications/test-email` - Send test email
-- `PUT /api/v1/notifications/:id/mark-as-read` - Mark notification as read
-- `DELETE /api/v1/notifications/:id` - Delete notification
+- `GET /api/v1/notifications/user/:userId` - Get notifications for a user
+- `PUT /api/v1/notifications/:id/read` - Mark notification as read
 
 ## Messaging
 

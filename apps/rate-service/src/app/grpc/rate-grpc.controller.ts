@@ -72,7 +72,7 @@ export class RateGrpcController {
         error.stack
       );
 
-      // Preserve the original error message which should already be clear
+    
       throw new Error(error.message);
     }
   }

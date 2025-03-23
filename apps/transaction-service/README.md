@@ -91,11 +91,10 @@ This service relies on the following main dependencies:
 
 ## API Endpoints
 
-- `GET /api/v1/transactions` - Get user transactions
-- `GET /api/v1/transactions/:id` - Get transaction by ID
-- `POST /api/v1/transactions` - Create a new transaction
-- `GET /api/v1/transactions/history` - Get transaction history
-- `POST /api/v1/transactions/exchange` - Perform currency exchange
+- `POST /api/v1/transactions/orders` - Create a new order (currency exchange)
+- `GET /api/v1/transactions/orders/:id` - Get order by ID
+- `GET /api/v1/transactions/user/:userId/orders` - Get orders for a user
+- `GET /api/v1/transactions/orders/:orderId/transactions` - Get transactions for an order
 
 ## Messaging
 

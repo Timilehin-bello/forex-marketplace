@@ -41,7 +41,7 @@ Options:
 Admin users can create additional admin users via the API:
 
 ```http
-POST /users/admin
+POST /api/v1/users/admin
 Authorization: Bearer <admin_jwt_token>
 Content-Type: application/json
 
@@ -61,7 +61,7 @@ This endpoint requires authentication with an existing admin user token.
 Admins can promote existing users to admin status:
 
 ```http
-POST /users/promote/{userId}
+POST /api/v1/users/promote/{userId}
 Authorization: Bearer <admin_jwt_token>
 ```
 

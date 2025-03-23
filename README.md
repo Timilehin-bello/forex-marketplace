@@ -222,13 +222,45 @@ yarn test:coverage
 
 ## API Documentation
 
-The API documentation is available via Swagger UI when the services are running:
+The services expose the following REST API endpoints:
 
-- User Auth Service: http://localhost:3001/api/v1/docs
-- Wallet Service: http://localhost:3002/api/v1/docs
-- Rate Service: http://localhost:3003/api/v1/docs
-- Transaction Service: http://localhost:3014/api/v1/docs
-- Notification Service: http://localhost:3006/api/v1/docs
+### User Auth Service (Port 3001)
+- `POST /api/v1/users/register` - Register a new user
+- `POST /api/v1/users/login` - Login and get JWT token
+- `GET /api/v1/users/profile` - Get user profile
+- `POST /api/v1/users/admin` - Create admin user (requires admin role)
+- `POST /api/v1/users/promote/:userId` - Promote user to admin (requires admin role)
+
+### Wallet Service (Port 3002)
+- `POST /api/v1/wallets` - Create a new wallet
+- `GET /api/v1/wallets/:id` - Get wallet by ID
+- `GET /api/v1/wallets/user/:userId` - Get wallets by user ID
+- `GET /api/v1/wallets/user/:userId/currency/:currency` - Get wallet by user ID and currency
+- `POST /api/v1/wallets/transaction` - Process a transaction (deposit/withdraw)
+- `GET /api/v1/wallets/:walletId/transactions` - Get transactions for a wallet
+
+### Rate Service (Port 3003)
+- `GET /api/v1/rates` - Get all exchange rates
+- `GET /api/v1/rates/:baseCurrency/:targetCurrency` - Get rate for currency pair
+
+### Transaction Service (Port 3014)
+- `POST /api/v1/transactions/orders` - Create a new order
+- `GET /api/v1/transactions/orders/:id` - Get order by ID
+- `GET /api/v1/transactions/user/:userId/orders` - Get user orders
+- `GET /api/v1/transactions/orders/:orderId/transactions` - Get transactions for an order
+
+### Notification Service (Port 3006)
+- `GET /api/v1/notifications/user/:userId` - Get user notifications
+- `PUT /api/v1/notifications/:id/read` - Mark notification as read
+
+## Additional Documentation
+
+For more detailed information, refer to the following documentation:
+
+- [`docs/admin-user-creation.md`](docs/admin-user-creation.md): Detailed guide for creating admin users
+- [`docs/api-response-standards.md`](docs/api-response-standards.md): API response format standards
+
+Additionally, each microservice has its own README.md file in its respective directory with service-specific details.
 
 ## Project Structure
 

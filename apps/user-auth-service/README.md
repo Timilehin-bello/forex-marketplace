@@ -99,12 +99,11 @@ yarn create:admin
 
 ## API Endpoints
 
-- `POST /api/v1/auth/register` - Register a new user
-- `POST /api/v1/auth/login` - Login and get JWT token
-- `GET /api/v1/auth/profile` - Get user profile
-- `PUT /api/v1/auth/profile` - Update user profile
-- `GET /api/v1/users` - List users (admin only)
-- `GET /api/v1/users/:id` - Get user by ID (admin only)
+- `POST /api/v1/users/register` - Register a new user
+- `POST /api/v1/users/login` - Login and get JWT token
+- `GET /api/v1/users/profile` - Get user profile (requires authentication)
+- `POST /api/v1/users/admin` - Create admin user (requires admin role)
+- `POST /api/v1/users/promote/:userId` - Promote user to admin (requires admin role)
 
 ## gRPC Service
 

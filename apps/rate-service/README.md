@@ -87,10 +87,8 @@ This service relies on the following main dependencies:
 
 ## API Endpoints
 
-- `GET /api/v1/rates` - Get current exchange rates
-- `GET /api/v1/rates/currency/:code` - Get rates for specific currency
-- `GET /api/v1/rates/pair/:base/:quote` - Get rate for currency pair
-- `GET /api/v1/rates/historical` - Get historical rates
+- `GET /api/v1/rates` - Get all exchange rates (paginated)
+- `GET /api/v1/rates/:baseCurrency/:targetCurrency` - Get rate for specific currency pair
 
 ## gRPC Service
 
